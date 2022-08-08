@@ -1,0 +1,100 @@
+<div class="container pt-3">
+    <div id="rowConfig" class="row mb-3">
+        <div class="col-4">
+            <label for="edWidth" class="mt-1">Ancho de la Celda</label>
+        </div>
+        <div class="col-2 text-end">
+            <input id="edWidth" class="form-control mb-2 text-end" type="number"  data-z-autochange-delay="300"  />
+        </div>
+        <div class="col-4 text-start">
+            <select id="edUnit" class="selectpicker show-tick w-50" data-style="btn btn-sm btn-outline-secondary bg-white px-2 select-control" data-z-id-field="code" data-z-label-field="name"></select>
+        </div>
+        <hr />
+    </div>
+    <div class="row mb-3">
+        <div class="col-4">
+            <div class="form-check">
+                <input id="row" class="form-check-input" type="radio" name="type" checked>
+                <label class="form-check-label" for="row">
+                    Layout tipo Fila
+                </label>
+            </div>
+            <div class="form-check">
+                <input id="column" class="form-check-input" type="radio" name="type">
+                <label class="form-check-label" for="column">
+                    Layout tipo Columna
+                </label>
+            </div>
+            <div class="form-check">
+                <input id="dimFilter" class="form-check-input" type="radio" name="type">
+                <label class="form-check-label" for="dimFilter">
+                    Filtro por Dimensión
+                </label>
+            </div>
+            <div class="form-check">
+                <input id="dimRowSelector" class="form-check-input" type="radio" name="type">
+                <label class="form-check-label" for="dimRowSelector">
+                    Selector de Fila de Dimensión
+                </label>
+            </div>
+            <div class="form-check">
+                <input id="timeSerie" class="form-check-input" type="radio" name="type">
+                <label class="form-check-label" for="timeSerie">
+                    Serie de Tiempo
+                </label>
+            </div>
+            <div class="form-check">
+                <input id="pie" class="form-check-input" type="radio" name="type">
+                <label class="form-check-label" for="pie">
+                    Gráfico de Torta
+                </label>
+            </div>
+            <div class="form-check">
+                <input id="dimSerie" class="form-check-input" type="radio" name="type">
+                <label class="form-check-label" for="dimSerie">
+                    Barras por Dimensiones
+                </label>
+            </div>
+            <div class="form-check">
+                <input id="dimTable" class="form-check-input" type="radio" name="type">
+                <label class="form-check-label" for="dimTable">
+                    Tabla por Dimensiones
+                </label>
+            </div>
+            <div class="form-check">
+                <input id="heatMap" class="form-check-input" type="radio" name="type">
+                <label class="form-check-label" for="heatMap">
+                    Heat Map
+                </label>
+            </div>
+            <div class="form-check">
+                <input id="gauge" class="form-check-input" type="radio" name="type">
+                <label class="form-check-label" for="gauge">
+                    Gauge
+                </label>
+            </div>
+            <div class="form-check">
+                <input id="timeDim" class="form-check-input" type="radio" name="type">
+                <label class="form-check-label" for="timeDim">
+                    Serie Temporal Dimensiones
+                </label>
+            </div>
+            <div class="form-check">
+                <input id="forceDirectedTree" class="form-check-input" type="radio" name="type">
+                <label class="form-check-label" for="forceDirectedTree">
+                    Árbol Direccional Dirigido
+                </label>
+            </div>
+        </div>
+        <div class="col-8 border-start">
+            <div style="height: 200px; "></div>
+            <hr />
+            <div>
+                <button id="cmdAgregar" class="btn btn-primary float-end">
+                    <i class="far fa-square-plus me-2"></i>
+                    Agregar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

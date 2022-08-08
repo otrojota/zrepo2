@@ -1,0 +1,390 @@
+body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;    
+    
+    color: white;
+    /*
+    font-family: Ubuntu;
+    font-style: normal;
+    font-weight: normal;
+    font-size: 14px;
+    line-height: 16px;
+    */
+    background-color: #444343;
+}
+
+
+a {
+    color: white;    
+}
+a:hover {
+    color: white;
+    text-decoration: underline;
+}
+
+textarea,
+pre {
+    -moz-tab-size : 4;
+      -o-tab-size : 4;
+         tab-size : 4;
+}
+
+#main {
+    height: 100%;
+}
+.centered {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.custom-select {
+    border: 1px solid white;
+    color: white;
+    background: transparent url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='4' height='5' viewBox='0 0 4 5'%3e%3cpath fill='white' d='M2 0L0 2h4zm0 5L0 3h4z'/%3e%3c/svg%3e") no-repeat right .75rem center/8px 10px
+}
+.form-control {
+    background: #444343;
+    border: 1px solid white;
+    color: white;
+}
+.form-control:disabled {
+    background: #444343;
+    border: 1px solid white;
+    color: lightgray;
+}
+.form-control:focus {
+    background: #444343;
+    border: 1px solid white;
+    color: white;
+}
+.form-control.error {
+    border: 1px solid orangered;
+}
+.input-group-text {
+    background-color: #272626;
+    color: white;
+}
+
+.nav-tabs {
+    padding-top: 10px;
+    border-bottom: none;
+}
+
+.nav-link {
+    color: lightgray;
+}
+.nav-link:hover {
+    color: white;
+    text-decoration: underline;
+}
+.nav-link.active {
+    color: white !important;
+    background-color: #444343 !important;
+    border-bottom: none;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+}
+.nav-link:focus {
+    color: white !important;
+    background-color: #444343 !important;
+    border-bottom: none;
+}
+
+.tab-content {
+    background: #444343;
+}
+.custom-select option {
+    background: #444343;
+    color: white
+}
+
+.btn-outline-secondary:not(:disabled):not(.disabled).active, .btn-outline-secondary:not(:disabled):not(.disabled):active, .show>.btn-outline-secondary.dropdown-toggle {
+    color: rgb(227, 100, 20);
+}
+
+.btn-outline-secondary:not(:disabled):not(.disabled):hover, .btn-outline-secondary:not(:disabled):not(.disabled):hover, .show>.btn-outline-secondary.dropdown-toggle {
+    color: rgb(227, 100, 20);
+}
+
+hr {background-color: white;}
+h4 {color: black;}
+h5 {color: black;}
+li {color: black;}
+ul {color: black;}
+
+/*
+label {color: white;}
+
+td a {color: black;}
+*/
+
+.modal {z-index: 6000;}
+.modal-content {
+    background-color: rgba(68, 68, 67, 1);
+    border: 1px solid white;
+    color:white;
+    font-size: 16px;
+}
+/*
+.slider-bar {
+    border-radius: 5px;
+    height: 8px;
+    background-color: rgba(68, 68, 67, 1);
+    border: 1px solid white;
+    color:white;
+    margin-top:16px;
+    margin-left: 20px;
+    margin-right: 20px;
+}
+.slider .fa-minus {margin-top: -3px}
+.slider .fa-plus {margin-top: -11px}
+
+*/
+
+/* Controls */
+.checkbox i {cursor: pointer;}
+.checkbox-label:hover {cursor: pointer; text-decoration: underline;}
+
+/* Common Panels */
+.zrepo-panel {
+    padding: 10px;
+    background-color: #272626;
+}
+.zrepo-background {
+    background-color: #444343;
+}
+.zrepo-panel-close {
+    float: right;   
+    width: 22px; height: 22px;
+    background-image: url(../img/icons/close.svg);
+    background-repeat: no-repeat;
+    background-size: 22px 22px;
+    cursor: pointer;    
+    margin-right: 6px;
+}
+
+.zrepo-header {
+    background-color: #272626;
+}
+
+.opcion-side-bar {
+    width:100%;
+    margin-top: 10px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-left: 5px;
+    padding-right: 5px;
+    text-align: center;
+    cursor: pointer;
+}
+.opcion-side-bar:hover {
+    color: rgb(227, 100, 20);
+}
+.opcion-side-bar-activa {
+    color: rgb(227, 100, 20);
+}
+.titulo-opcion-side-bar {
+    margin-top: 10px;
+    font-size: 13px;
+}
+
+.dim-selector-button {
+    cursor: pointer;
+}
+.dim-selector-button:hover {
+    color: rgb(227, 100, 20);
+}
+
+.bootstrap-select .dropdown-toggle {
+    background-color: #444343 !important;
+    color: white;
+    border: 1px solid white;    
+}
+
+.day-cell {
+    border-right: 1px solid white;
+    height: 20px;
+    text-align: center;
+    color: white;
+    position: absolute;
+    top:30px;
+}
+.first-day-cell {
+    border-left: 1px solid white;
+}
+.bootstrap-datetimepicker-widget {
+    pointer-events: all;
+    font-size: 13px;
+    text-align: center;
+    padding: 4px;
+    opacity: 0.9;
+    background-color: #272626;    
+    color: white;
+    z-index: 400;
+    border: 1px solid #3D3D3D;
+}
+.datetimepicker {
+    border: 1px solid white;
+    border-radius: 5px;
+}
+.timepicker {
+    /*border: 1px solid white;*/
+    border-radius: 5px;
+    padding:0;
+    padding-top: 10px;
+}
+.timepicker-hour {
+    width: 30px !important;
+    height: 30px !important;
+    font-size: 12px !;
+    font-weight: normal !important;    
+    line-height: 30px !important;
+}
+.timepicker-minute {
+    width: 30px !important;
+    height: 30px !important;
+    font-size: 12px !;
+    font-weight: normal !important;    
+    line-height: 30px !important;
+}
+
+.bootstrap-datetimepicker-widget table td.day {
+    color: lightgray;
+}
+.bootstrap-datetimepicker-widget table td span {
+    width: 30px !important;
+    height: 30px !important;
+    line-height: 30px !important;
+    color: white;
+}
+.bootstrap-datetimepicker-widget table td span:hover {
+    color: gray;
+    background-color: royalblue;
+}
+
+/* ZTree */
+.ztree-item {
+    padding-right: 0;
+    border-top-right-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+}
+.ztree-subitem {
+    margin-right: -1px;
+}
+.ztree-open-expander {
+    transform: rotate(90deg);
+    transition: .2s linear;
+}
+.ztree-closed-expander {
+    transform: rotate(0deg);
+    transition: .2s linear;
+}
+.ztree-closed-children-container {
+    opacity: 0;
+    transition: .2s linear;
+}
+.ztree-open-children-container {
+    opacity: 1;
+    transition: .2s linear;
+}
+
+.ztree-nodes .list-group-item {
+    /*font-size: 90%;*/
+    background-color: #272626;
+    color: lightgrey;
+    border-color: grey;
+}
+.ztree-nodes .list-group-item.active {
+    background-color: #444343 !important;
+}
+
+.node-expander {
+    cursor: pointer;
+}
+.selectable-item {
+    cursor: pointer;
+}
+
+.folder-item {
+    background-color: #272626;
+    color: lightgrey;
+    border-color: grey;
+}
+.dashboard-item {
+    background-color: #272626;
+    color: lightgrey;
+    border-color: grey;
+}
+
+.select-control {
+    height: 38px;
+    padding-top: 8px;
+}
+
+/* ZDashboard */
+.zdashboard-title {
+    color: white;
+}
+.zdashboard-cell {
+    position: absolute;
+}
+.zdashboard-cell-design-mode {
+    border: 1px solid yellow !important;
+}
+.zdashboard-cell-element {
+    background-color: #272626;
+    border-radius: 5px;
+    border: 1px solid gray;
+}
+.zdashboard-cell-layout {    
+}
+.zdashboard-cell-selector { 
+}
+.zdashboard-cell-overlay { 
+    position: absolute;
+    background-color: #272626;
+    opacity: 0.9;
+    color: orange;
+    font-size: 16px;
+    font-style: italic;
+    width: 100%;
+    height: 100%;
+    left:0; top:0;
+    text-align: center;
+    padding-top: 15px;
+}
+
+.zdim-filter {
+    text-decoration: underline;
+}
+.zdim-filter-container {
+    padding: 10px;
+    cursor: pointer;
+    background-color: #272626;
+    border-radius: 5px;
+    border: 1px solid gray;   
+}
+.zelement-title {
+    font-size: 1.5rem;
+    text-align: center;    
+    padding-top: 5px;
+    height: 40px;
+    border-bottom: 1px solid gray;
+}
+.ztable-container {
+    overflow: auto;
+}
+.table-dark {
+    --bs-table-bg: #212529;
+    --bs-table-striped-bg: #272626;
+    --bs-table-striped-color: #fff;
+    --bs-table-active-bg: #373b3e;
+    --bs-table-active-color: #fff;
+    --bs-table-hover-bg: #323539;
+    --bs-table-hover-color: #fff;
+    color: #fff;
+    border-color: #373b3e;
+}

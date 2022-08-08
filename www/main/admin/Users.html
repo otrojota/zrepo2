@@ -1,0 +1,55 @@
+<div class="p-1 my-2">
+    <div class="navbar zrepo-panel py-2 rounded my-0" >
+            <div id="edFilter" class="mr-auto" data-z-component="common/TextSearch"></div>
+            <button id="cmdAdd" type="button" class="btn btn-sm btn-success ml-2">
+                <i class="fas fa-plus-square mr-2"></i>
+                Nuevo Usuario
+            </button>
+    </div>
+</div>
+
+<div class="container-fluid" style="overflow-y: auto;">
+    <div class="row">
+        <div class="col-6">
+            <div class="card p-2">
+                <table id="list" class="mt-2 w-100 table table-sm table-hover"
+                    data-z-selected-row-class="table-primary"
+                    data-z-pagination="#paginator"
+                    data-z-rows-info="#rowsDetail"
+                >
+                    <thead>
+                        <th data-z-details-toggler="true" style="width:60px;">Editar</th>
+                        <th data-z-field="email" data-style="width: 120px;">Email</th>
+                        <th data-z-field="name" >Nombre</th>
+                        <th data-z-field="imgAdmin" data-style="width: 60px;">Admin</th>
+                    </thead>
+                    <tbody>-</tbody>
+                </table>
+                <div class="border-top pt-2 pb-1">
+                    <div id="rowsDetail" class="text-center text-muted"></div>
+                    <div id="paginator" class="pagination pagination-sm float-right" style="margin-top:-26px;"
+                        data-z-pagination="local"
+                        data-z-rows-per-page="50"
+                        data-z-n-pages="10"
+                    >
+                    </div>
+                </div>     
+            </div>
+        </div>
+        <div class="col-6">
+            <div id="message" class="alert alert-info">
+                Seleccione un Usuario en la Lista de la Izquierda
+            </div>
+            <div id="groupsContainer" class="card p-2">
+                <table id="groupsList" class="mt-2 w-100 table table-sm">
+                    <thead>
+                        <th data-z-field="lblGrupo">Grupo</th>
+                        <th data-z-field="imgQuery" style="width: 100px; text-align: center;" data-z-cell-class="text-center" data-z-clickable="true">Consultar</th>
+                        <th data-z-field="imgPublish" style="width: 100px; text-align: center;" data-z-cell-class="text-center" data-z-clickable="true">Publicar</th>
+                    </thead>
+                    <tbody>-</tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

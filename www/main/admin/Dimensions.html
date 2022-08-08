@@ -1,0 +1,69 @@
+<div class="container-fuild p-1 my-2">
+    <div class="navbar zrepo-panel py-2 rounded my-0" >
+        <select id="edDimension" class="selectpicker show-tick" data-width="190px" data-live-search="true" data-style="me-2 btn btn-sm btn-outline-secondary bg-white px-2" data-z-id-field="code" data-z-label-field="name"></select>
+        <div id="edTextFilter" data-z-component="common/TextSearch" class="ms-2" data-z-placeholder="Buscar"></div>
+        <a id="filtro" href="#" class="ms-2 me-auto border p-1 rounded" style="width: 300px; font-size: 12px;">Filtro</a>
+        <button id="cmdSync" type="button" class="btn btn-sm btn-info ml-2">
+            <i class="fas fa-sync-alt mr-2"></i>
+            Sincronizar
+        </button>
+        <button id="cmdExport" type="button" class="btn btn-sm btn-info ms-2">
+            <i class="fas fa-file-export mr-2"></i>
+            Exportar
+        </button>
+        <button id="cmdImport" type="button" class="btn btn-sm btn-info ms-2">
+            <i class="fas fa-file-import mr-2"></i>
+            Importar
+        </button>
+        <button id="cmdAdd" type="button" class="btn btn-sm btn-success ms-2">
+            <i class="fas fa-plus-square mr-2"></i>
+            Nuev Fila
+        </button>
+    </div>
+</div>
+
+<div id="contentPane" class="px-2">
+    <div class="row">
+        <div class="col-sm-6">
+            <div id="listContainer" class="card mb-0 mt-1 px-2" style="overflow-y: auto;">
+                <table id="rowsList" class="mt-2 w-100 table table-sm table-hover"
+                    data-z-selected-row-class="table-primary"
+                    data-z-pagination="#paginator"
+                    data-z-rows-info="#rowsDetail"
+                >
+                    <thead>
+                        <th data-z-details-toggler="true" style="width:60px;">Editar</th>
+                        <th data-z-field="code" >Código</th>
+                        <th data-z-field="name" >Nombre / Etiqueta</th>
+                    </thead>
+                    <tbody>-</tbody>
+                </table>
+                <div class="border-top pt-2 pb-1">
+                    <div id="rowsDetail" class="text-center text-muted"></div>
+                    <div id="paginator" class="pagination pagination-sm float-right" style="margin-top:-26px;"
+                        data-z-pagination="server"
+                        data-z-rows-per-page="50"
+                        data-z-n-pages="10"
+                    >
+                    </div>
+                </div>        
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div id="rowDetails" class="card mb-0 mt-1 p-2">
+                <h5 id="lblDetailsCaption"></h5>
+                <hr style="background-color: black;" />
+                <div id="detailsContainer" style="line-height: 24px; color: black;"></div>
+                <div id="rowExtraData">
+                    <label class="text-dark ml-1">Datos Adicionales (JSON)</label>
+                    <textarea id="edExtraData" class="form-control" rows="8" style="font-family: 'Courier New', Courier, monospace; font-size: 12px;" data-z-autochange-delay="300">
+                    </textarea>
+                    <button id="cmdSaveExtraData" type="button" class="btn btn-primary mt-2">
+                        Grabar
+                        <i class="fas fa-save ml-2"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

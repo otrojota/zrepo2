@@ -1,0 +1,46 @@
+<div class="border zrepo-panel">
+    <div class="d-flex flex-row">
+        <div class="flex-fill zrepo-background py-2">
+            <div id="errorMsg" class="alert alert-danger m-2">Mensaje de Error de Prueba</div>
+            <div class="container">
+                <div class="form-row mb-2">
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="edEmail" class="text-light">e-mail</label>
+                            <input id="edEmail" type="email" class="form-control form-control-sm" style="max-width: 230px;">
+                        </div>        
+                    </div>
+                </div>
+                <div class="form-row mb-2">
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="edName" class="text-light">Nombre o Descripción</label>
+                            <input id="edName" type="text" class="form-control form-control-sm">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-row mb-2 mt-4">
+                    <div class="col">
+                        <div id="edAdmin" data-z-component="common/CheckBox" data-z-label="Administrador Global" style="color: white;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div style="width:180px;">
+            <div class="h-100 border-left ps-3">
+                <button id="cmdSave" type="button" class="btn btn-sm w-100 btn-outline-success">
+                    <i class="far fa-check-circle float-left mt-1 mr-2"></i>
+                    Guardar
+                </button>
+                <button id="cmdCancel" type="button" class="btn btn-sm w-100 btn-outline-warning mt-2">
+                    <i class="fas fa-ban float-left mt-1 mr-2"></i>
+                    Cancelar
+                </button>
+                <button id="cmdDelete" type="button" class="btn btn-sm w-100 btn-outline-danger mt-4">
+                    <i class="fas fa-trash-alt float-left mt-1 mr-2"></i>
+                    Eliminar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

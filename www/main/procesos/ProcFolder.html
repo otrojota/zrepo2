@@ -1,0 +1,74 @@
+<div class="container-fuild p-1 my-2">
+    <div class="navbar zrepo-panel py-2 rounded my-0" >
+        <select id="edProceso" class="selectpicker show-tick" data-width="250px" data-live-search="true" data-style="me-2 btn btn-sm btn-outline-secondary bg-white px-2" data-z-id-field="id" data-z-label-field="name"></select>
+        <input id="edDia" class="datetimepicker form-control form-control-sm text-center ms-2" style="width: 95px;" data-z-format="DD/MM/YYYY" />
+        <select id="edEstado" class="selectpicker show-tick ms-2" data-width="210px" data-live-search="true" data-style="me-2 btn btn-sm btn-outline-secondary bg-white px-2" data-z-id-field="code" data-z-label-field="name"></select>
+        
+        <button id="cmdRefresh" class="btn btn-sm btn-success ms-auto" type="button"> 
+            <i class="fa-solid fa-repeat me-2"></i>
+            Refrescar
+        </button>
+        <button id="cmdRun" type="button" class="btn btn-sm btn-primary ms-2 dropdown-toggle" data-bs-toggle="dropdown">
+            <i class="fa-solid fa-bolt-lightning me-2"></i>
+            Ejecutar
+        </button>
+        <div id="manProcs" class="dropdown-menu dropdown-menu-end dropdown-menu-dark">
+        </div>                    
+    </div>
+</div>
+
+<div id="contentPane" class="px-2">
+    <div class="row">
+        <div class="col-sm-6">
+            <div id="listContainer" class="card mb-0 mt-1 px-2" style="overflow-y: auto;">
+                <table id="rowsList" class="mt-2 w-100 table table-sm table-hover"
+                    data-z-selected-row-class="table-primary"
+                    data-z-details-toggler-open-icon="far fa-eye"
+                >
+                    <thead>
+                        <th data-z-details-toggler="true" style="width:30px;"></th>
+                        <th data-z-field="fmtStarted" style="width:70px;" >Inicio</th>
+                        <th data-z-field="fmtFinished" style="width:70px;" >Fin</th>
+                        <th data-z-field="name" >Nombre</th>
+                        <th data-z-field="imgStatus" style="width:80px;" data-z-cell-class="text-center">Estado</th>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div id="rowDetails" class="card mb-0 mt-1 p-2">
+                <div>
+                    <i id="detailsWorking" class="fas fa-spin fa-spinner float-start me-2 text-dark fa-lg mt-2"></i>
+                    <h5 id="lblDetailsCaption"></h5>
+                    <button id="cmdUpdate" class="btn btn-sm btn-success float-end" type="button" style="margin-top: -30px;"> 
+                        <i class="fa-solid fa-repeat me-2"></i>
+                        Actualizar
+                    </button>
+                    <button id="cmdDetener" class="btn btn-sm btn-danger float-end me-2" type="button" style="margin-top: -30px;"> 
+                        <i class="fa-solid fa-ban me-2"></i>
+                        Detener
+                    </button>
+                    <button id="cmdFinalizar" class="btn btn-sm btn-danger float-end me-2" type="button" style="margin-top: -30px;"> 
+                        <i class="fa-solid fa-ban me-2"></i>
+                        Forzar Término
+                    </button>
+                </div>
+                <hr style="background-color: black;" />
+                <div id="logsContainer"  style="overflow-y: auto;">
+                    <table id="logList" class="mt-2 w-100 table table-sm table-hover"                    
+                        data-z-details-toggler-open-icon="far fa-eye"
+                    >
+                        <thead>
+                            <th data-z-details-toggler="true" style="width:30px;"></th>
+                            <th data-z-field="fmtTime" style="width:70px;" >Hora</th>
+                            <th data-z-field="fmtText" >Detalle</th>
+                            <th data-z-field="imgType" style="width:80px;" data-z-cell-class="text-center"></th>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,55 @@
+<nav class="navbar navbar-expand-lg navbar-inverse zrepo-header py-0">
+    <div class="container-fluid">
+        <img id="imgLogo" src_bak="img/zonar.png" class="float-start me-3 mt-1" height="30px" />
+        <div class="navbar-brand ms-3" style="margin-top: 6px;" >Z-REPO</div> 
+        <!--
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-target="#contenedorOpciones">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        -->
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#contenedorOpciones" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <!--<span class="navbar-toggler-icon"></span>-->
+            <i class="fas fa-xl fa-bars text-light"></i>
+        </button>
+        <div id="contenedorOpciones" class="collapse navbar-collapse">
+            <ul class="navbar-nav ms-auto" style="margin-top: 10px;">
+                <li id="itemHome" class="nav-item">
+                    <a id="cmdHome" href="#" class="nav-link active">
+                        <i class="fas fa-home me-1"></i>
+                        Inicio
+                    </a>
+                </li>
+                <li id="itemAdmin" class="nav-item">
+                    <a id="cmdAdmin" href="#" class="nav-link">
+                        <i class="fas fa-wrench me-1"></i>
+                        Administrar
+                    </a>
+                </li>
+                <li id="itemConsultas" class="nav-item">
+                    <a id="cmdConsultas" href="#" class="nav-link">
+                        <i class="fas fa-magnifying-glass-chart me-1"></i>
+                        Explorar
+                    </a>
+                </li>
+                <li id="itemProcesos" class="nav-item">
+                    <a id="cmdProcesos" href="#" class="nav-link">
+                        <i class="fa-solid fa-microchip me-1"></i>
+                        Procesos
+                    </a>
+                </li>
+                <li class="nav-item ml-4 dropdown ms-4">
+                    <a id="cmdMiCuenta" href="#" class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown">
+                        <i class="fas fa-2x fa-user-circle me-1" style="margin-top: -10px;"></i>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-end dropdown-menu-dark">
+                        <h6 id="lblNombreUsuario" class="dropdown-header">Mi Cuenta</h6>
+                        <a id="cmdCambiarPwd" href="#" class="dropdown-item"><i class="fas fa-key me-2"></i>Cambiar Contraseña</a>
+                        <a id="cmdLogout" href="#" class="dropdown-item"><i class="fas fa-sign-out-alt me-2"></i>Cerrar Sesión</a>
+                    </div>                    
+                </li>                
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div id="loader" class="h-100" data-z-load="./home/Home" stylex="margin-top:64px;"></div>

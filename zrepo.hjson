@@ -1,0 +1,193 @@
+{
+    # Security - Comment to disable, after local users have been created
+    adminLogin: admin@zrepo2.com
+    adminPassword: admin
+    #logo:"proxy/bi-peajes/img/efe.png"
+
+    timeZone:"America/Santiago"
+    masterToken:"zrepo-master-token"
+    tokens:{
+        efe-private-token:{
+            minz-read:true
+            minz-write:true
+            minz-write-dim:true
+            dataSet-test.registro_venta-write:true
+        }
+        efe-public:{
+            minz-read:true
+            #dataSet-moncol.fila_colmena-read: true
+        }
+        /*
+        moncol_sd_01:{
+            dataSet-moncol.fila_colmena-write: true
+            dataSet-moncol.fila_estacion-write: true
+        }
+        */
+    }
+    public-token: zrepo2-public
+
+    smtp:{
+        from:"sender@zrepo2.com",
+        auth: {
+            user: "sender@zrepo2.com",
+            pass: "zrepo2"
+        },
+        host: "smtp.zrepo2.com",
+        port: 587,
+        secureConnection: false,
+        tls: {
+            ciphers:'SSLv3'
+        }
+    }
+
+    # Dashboard Groups
+    # iconos desde: https://fontawesome.com/search?q=money&m=free
+    dashboard-groups:[
+        {id:"id1", name:"Name1", icon:'fa-solid fa-money-bill-trend-up', _type:"shared"},
+        {id:"id2", name:"Name2", icon:'fa-solid fa-train-subway', _type:"shared", items:[
+            {id:"id2-1", name:"Name2-1", icon:'fa-solid fa-train-subway', _type:"shared"},
+            {id:"id2-2", name:"Name2-2", icon:'fa-solid fa-train-subway', _type:"shared"}
+        ]}
+        {id:"id3", name:"Name3", icon:'fa-regular fa-id-card', _type:"shared"}
+    ]
+
+    # Processes
+    process-groups:[
+        {        
+            id:"test", name:"Test", icon:"fa-solid fa-bug", content:[
+                {
+                plugin:"test", code:"carga-test-ventas", triggers:[
+                    {type:"manual", name:"Generar Ventas"}
+                    {type:"manual", name:"Generar Ventas 2022", ano:2022}
+                    {type:"manual", name:"Generar 1000 Ventas 2022", ano:2022, n:1000}
+                    {type:"cron", name:"Auto genera 100 ventas en 2020", ano:2020, n:100, cron:"0 30 * * * *"}
+                ]}, {
+                plugin:"bi-peajes", code:"test-tarjetas", triggers:[
+                    {type:"manual", name:"Probar conexión a DBTarjetas"}
+                ]}, {
+                plugin:"bi-peajes", code:"test-yml", triggers:[
+                    {type:"manual", name:"Probar archivos YML"}
+                ]}                
+            ]
+        }
+    ]
+
+    #Plugins
+    plugins:{
+        "test":{pwd:"test-pwd"}
+        "bi-peajes":{pwd:"bi-peajes-pwd"}
+    }
+
+    # Domains
+    domains:{
+        test: "Pruebas"
+        ine:"Instituto Nacional de Estadísticas"
+        efe: "EFE"
+    }
+    # MinZ Dimensions
+    dimensions:{
+        efe.filial:{name:"Filial", classifiers:[]}
+        efe.contrato:{name:"Contrato", classifiers:[]}
+        efe.entidad:{name:"Entidad", classifiers:[]}
+        efe.convenio:{name:"Convenio", classifiers:[{fieldName:"entidad", dimensionCode:"efe.entidad", name:"Entidad", defaultValue:"0"}]}
+        efe.tipoSitio:{name:"Tipo de Sitio", classifiers:[]}
+        // efe.zonaEstacion:{name:"Zona Estación", classifiers:[]}
+        efe.sitio:{name:"Sitio", classifiers:[{
+            fieldName:"tipo", dimensionCode:"efe.tipoSitio", name:"Tipo del Sitio", defaultValue:"0"
+        }, {
+            fieldName:"convenio", dimensionCode:"efe.convenio", name:"Convenio", defaultValue:"0"
+        // }, {
+        //    fieldName:"zona", dimensionCode:"efe.zonaEstacion", name:"Zona Estación", defaultValue:"0"
+        }]}
+        efe.tipoTerminal:{name:"Tipo de Terminal", classifiers:[]}
+        efe.subtipoTerminal:{name:"Subtipo de Terminal", classifiers:[{fieldName:"tipo", dimensionCode:"efe.tipoTerminal", name:"Tipo Terminal", defaultValue:"0"}]}
+        // efe.codigoComercio:{name:"Código de Comercio", classifiers:[]}
+        efe.terminal:{name:"Terminal", classifiers:[{
+            fieldName:"subtipo", dimensionCode:"efe.subtipoTerminal", name:"Subtipo del Terminal", defaultValue:"0"
+        }, {
+            fieldName:"sitio", dimensionCode:"efe.sitio", name:"Sitio", defaultValue:"0"
+        // }, {
+        //    fieldName:"codigoComercio", dimensionCode:"efe.codigoComercio", name:"Código Comercio", defaultValue:"0"
+        }]}
+
+        /* Pruebas */
+        ine.comuna:{name:"Comuna"
+            classifiers:[{
+                fieldName:"provincia", name:"Provincia", defaultValue:"00", dimensionCode:"ine.provincia"
+            }]
+            sync:{
+                type:"geojson"
+                url:"https://geoserver.geoos.org/ine-regional/comunas/geoJson"
+                fields:{
+                    code:"id", name:"name", provincia:"provincia", centroidLat:"centroidLat"
+                }
+                sort:{
+                    field:"centroidLat", direction:"desc"
+                }
+            }
+        }
+
+        ine.provincia:{name:"Provincia"
+            classifiers:[{
+                fieldName:"region", name:"Región", defaultValue:"00", dimensionCode:"ine.region"
+            }]
+            sync:{
+                type:"geojson"
+                url:"https://geoserver.geoos.org/ine-regional/provincias/geoJson"
+                fields:{
+                    code:"id", name:"name", region:"region", centroidLat:"centroidLat"
+                }
+                sort:{
+                    field:"centroidLat", direction:"desc"
+                }
+            }
+        }
+        ine.region:{name:"Región"
+            classifiers:[]
+            sync:{
+                type:"geojson"
+                url:"https://geoserver.geoos.org/ine-regional/regiones/geoJson"
+                fields:{
+                    code:"id", name:"name", centroidLat:"centroidLat"
+                }
+                sort:{
+                    field:"centroidLat", direction:"desc"
+                }
+            }
+        }
+        test.tipoLocal:{name:"Tipo de Local", classifiers:[]}
+        test.local:{name:"Local", classifiers:[{fieldName:"comuna", name:"Comuna", dimensionCode:"ine.comuna"}, {fieldName:"tipo", name:"Tipo de Local", dimensionCode:"test.tipoLocal"}]}
+        test.categoriaProducto:{name:"Categoría Producto", classifiers:[]}
+        test.producto:{name:"Producto", classifiers:[{fieldName:"categoria", name:"Categoría", dimensionCode:"test.categoriaProducto"}]}
+    }
+
+    # MinZ Variables
+    variables:{
+        test.ventas:{
+            name:"Ventas"
+            temporality:"1d"
+            classifiers:[{
+                fieldName:"local", name:"Local", defaultValue:"00", dimensionCode:"test.local"
+            }, {
+                fieldName:"producto", name:"Producto", defaultValue:"00", dimensionCode:"test.producto"
+            }]
+            options:{unit:"$", decimals:0}
+        }
+    }
+
+    #DataSets
+    dataSets:{
+        test.registro_venta: {
+            name: "Registro de Venta"
+            temporality: "free"
+            columns: [
+                {code: "codigo_local", name: "Local", shortName: "Local", type: "string"}
+                {code: "codigo_producto", name: "Producto", shortName: "Producto", type: "string"}
+                {code: "valor", name: "Valor", shortName: "Valor", type: "number"}
+            ]
+            triggers: [
+                {type:"postVariable", variable:"test.ventas", value:"valor", data:[{from:"codigo_local", to:"local"}, {from:"codigo_producto", to:"producto"}]}
+            ]
+        }        
+    }
+}

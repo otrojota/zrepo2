@@ -1,0 +1,24 @@
+<div class="container">
+    <div id="cmpOptions" data-z-component="./ComponentOptions"></div>
+    <div id="msgError" class="alert alert-danger mt-2"></div>
+    <div class="row my-3">
+        <div class="col-8">
+            <div class="form-check">
+                <input id="edRow" class="form-check-input" type="radio" name="type">
+                <label class="form-check-label" for="edRow">
+                  Distribuir Componentes en una Fila
+                </label>
+            </div>
+            <div class="form-check">
+                <input id="edColumn" class="form-check-input" type="radio" name="type">
+                <label class="form-check-label" for="edColumn">
+                    Distribuir Componentes en una Columna
+                </label>
+            </div>
+        </div>
+        <div class="col-4">
+            <label for="edSize">N° de Celdas</label>
+            <input id="edSize" class="form-control" type="number"  data-z-autochange-delay="300" />
+        </div>
+    </div>
+</div>

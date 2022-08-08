@@ -1,0 +1,36 @@
+<div class="container">
+    <div id="cmpOptions" data-z-component="./ComponentOptions" data-configurable="true"></div>
+    <div id="msgError" class="alert alert-danger mt-2"></div>
+    <div class="row my-3">
+        <div class="col-6">
+            <label for="edHeight">Altura del Elemento (pixels)</label>
+            <input id="edHeight" class="form-control form-control-sm" type="number" min="0" max="10000" data-z-autochange-delay="300" />
+        </div>
+        <div class="col-6">
+            <label for="edTitulo">Título del Elemento</label>
+            <input id="edTitulo" class="form-control form-control-sm" type="text" data-z-autochange-delay="300" />
+        </div>
+    </div>
+    <div class="row my-3">
+        <div class="col-6">
+            <label for="edVariable">Variable</label>
+            <select id="edVariable" class="selectpicker show-tick w-100" data-live-search="true" data-style="btn btn-sm btn-outline-secondary bg-white px-2" data-z-id-field="code" data-z-label-field="name"></select>
+        </div>
+        <div class="col-6">
+            <label id="lblTemporalidad" for="edTemporalidad">Intervalo Temporalidad</label>
+            <select id="edTemporalidad" class="form-select form-select-sm form-control w-100" data-z-id-field="code" data-z-label-field="name"></select>
+        </div>
+    </div>
+    <div class="row my-3">
+        <div class="col-6">
+            <label for="edAcumulador">Acumulador</label>
+            <select id="edAcumulador" class="form-select form-select-sm form-control w-100" data-z-id-field="code" data-z-label-field="name"></select>
+        </div>
+        <div class="col-6">
+            <div class="border rounded p-2 text-center h-100">
+                <a id="cmdFiltro" style="cursor: pointer; text-decoration: underline;">Filtrar</a>
+            </div>
+        </div>
+    </div>
+
+</div>

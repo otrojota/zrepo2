@@ -1,0 +1,56 @@
+<div class="modal fade" tabindex="-1">
+    <div class="modal-dialog modal-danger modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content bg-gradient-danger">
+            <div class="modal-header">
+                <h6 id="title" class="modal-title">Cambiar Contraseña</h6>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-header">
+                <div class="col ml-2 text-justify mr-2">                   
+                    <p> 1- Ingrese su Contraseña Actual</p>
+                    <p> 2- Ingrese la Nueva Contraseña</p>
+                    <p> 3- Ingrese nuevamente su Nueva Contraseña para Confirmarla</p>
+                    <p> 4- Presione "Aceptar"</p>
+            </div>
+        </div>
+        <div class="modal-body">
+            <div id="successMsg" class="alert alert-success my-2"></div>
+            <div id="errorMsg" class="alert alert-warning my-2"></div>
+            <div class="container">
+                <div class="row mb-2">
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="edPwdActual">Contraseña Actual</label>
+                            <input id="edPwdActual" type="password" class="form-control" data-z-autochange-delay="300">
+                        </div>
+                    </div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="edPwd">Nueva Contraseña</label>
+                            <input id="edPwd" type="password" class="form-control" data-z-autochange-delay="300">
+                        </div>
+                    </div>
+                </div>
+                <div class="row mb-2">
+                    <div class="col">
+                        <div class="form-group">
+                            <label for="edRepetirPwd">Repita la Nueva Contraseña</label>
+                            <input id="edRepetirPwd" type="password" class="form-control" data-z-autochange-delay="300">
+                        </div>
+                    </div>
+                </div>            
+            </div>    
+        </div>
+        <div class="modal-footer">
+            <button id="cmdOk" type="button" class=" btn btn-sm btn-outline-success">
+                <i class="far fa-check-circle float-left mt-1 mr-2"></i>
+                Aceptar
+            </button>
+            <button id="cmdCancel" type="button" class="btn btn-sm btn-secondary">Cancelar</button>
+        </div>    
+    </div>
+</div>
