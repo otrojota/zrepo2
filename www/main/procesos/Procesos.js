@@ -1,11 +1,9 @@
 class Procesos extends ZCustomController {
     async onThis_init() {
-        console.log("config", window.config)
         await this.groupsRepeater.refresh();
     }
 
     onGroupsRepeater_getRows() {
-        console.log("getRows");
         let rows = window.config["process-groups"];
         if (rows && rows.length) {
             setTimeout(_ => this.onGroupsRepeater_click(rows[0]), 100);

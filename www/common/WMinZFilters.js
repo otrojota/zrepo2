@@ -4,7 +4,6 @@ class WFiltrosMinZ extends ZDialog {
     async onThis_init(options) {
         this.caret.hide();
         this.consulta = MinZQuery.cloneQuery(options.consulta);
-        console.log("WMinZFiltrs con consulta", this.consulta);
         this.paramsProvider = options.paramsProvider;
         this.esDimension = options.esDimension;
         await this.consulta.construyeDescripcionFiltros()
@@ -248,7 +247,6 @@ class WFiltrosMinZ extends ZDialog {
         this.enterNodo(nodo);
         try {
             let rows = [];
-            console.log("click nodo", nodo, this.consulta);
             // Calcular filtros de valores de filas a partir de los fijos fijos
             let filtros = [];
             for (let f of this.consulta.fixedFilters) {
@@ -261,7 +259,6 @@ class WFiltrosMinZ extends ZDialog {
                 this.consulta.zRepoClient.construyeFiltro(filtro, f.ruta, f.valor);
                 return filtro;
             }, {});
-            console.log("filtro", filtro);
             //
             let dimCode = nodo.clasificador?nodo.clasificador.dimensionCode:null;
             if (!dimCode && this.esDimension) dimCode = this.consulta.variable.code;
@@ -280,9 +277,7 @@ class WFiltrosMinZ extends ZDialog {
             });
             // Parametros
             if (this.paramsProvider) {
-                console.log("paramsProvider", this.paramsProvider);
                 let params = this.paramsProvider.getParams().filter(p => p.type == dimCode);
-                console.log("params", params);
                 if (params.length) {
                     rows.push({code:"sep", label:"-"});
                     for (let p of params) {

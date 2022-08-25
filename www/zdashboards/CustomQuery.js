@@ -184,7 +184,10 @@ class CustomQuery extends ZCustomController {
         }
         this.chart.clearError();
         // Configurar query y chart
-        this.chart.setQuery(this.minzQuery);
+        let q = MinZQuery.cloneQuery(this.minzQuery);
+        q.fixedFilters = q.filters;
+        q.filters = [];
+        this.chart.setQuery(q);
         this.chart.setOptions(this.opcionesQuery);
         // Refrescar
         await this.chart.refresh(this.start, this.end);

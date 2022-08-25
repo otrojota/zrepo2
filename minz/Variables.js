@@ -90,14 +90,17 @@ class Variables {
         }
     }
 
-    async deletePeriod(variableCode, startTime, endTime, varData, details) {
+    async deletePeriod(variableCode, startTime, endTime, varData, details, filter) {
         try {
             let v = this.variables[variableCode];
             if (!v) throw "No se encontró la variable '" + variableCode + "'";
             if (!varData && !details) throw "Must specify varData or details to delete (or both)";
+            let res = {deletedCount:0};            
             try {
                 if (varData) {
-                    await (await mongo.collection(variableCode)).deleteMany({time:{$gte:startTime, $lt:endTime}});
+                    let f = filter || {};
+                    f.time = {$gte:startTime, $lt:endTime}
+                    res = await (await mongo.collection(variableCode)).deleteMany(f);
                 }
                 if (details && v.saveDetails) {
                     await (await mongo.collection(variableCode + "_det")).deleteMany({time:{$gte:startTime, $lt:endTime}});
@@ -106,7 +109,7 @@ class Variables {
                 console.log(error);
                 throw(error);
             }
-            return v;
+            return res.deletedCount;
         } catch(error) {
             throw error;
         }

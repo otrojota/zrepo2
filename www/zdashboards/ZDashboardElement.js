@@ -57,7 +57,7 @@ class ZDashboardElement extends ZCustomController {
         }
     }
     setQuery(q) {
-        this.q = q;
+        this.q = MinZQuery.cloneQuery(q);
     }
     setOptions(opts) {
         this.options = opts;

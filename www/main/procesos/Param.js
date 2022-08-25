@@ -1,11 +1,11 @@
 class Param extends ZCustomController {
     onThis_init(param) {
         this.param = param;
-        console.log("param", param);
         this.edNumber.hide();
         this.edText.hide();
         this.edTextArea.hide();
         this.selectContainer.hide();
+        this.edDia.hide();
         this.lbl.text = param.name;
         if (param.type == "int" || param.type == "number") {
             this.edNumber.show();
@@ -22,6 +22,10 @@ class Param extends ZCustomController {
             this.selectContainer.show();
             this.edSelect.setRows(param.values);
             this.onEdSelect_change();
+        } else if (param.type == "date") {
+            this.edDia.show();
+            this.edDia.value = moment.tz(Date.now(), window.timeZone).startOf("day");
+            this.onEdDia_change();
         }
     }
 
@@ -62,6 +66,11 @@ class Param extends ZCustomController {
     onEdSelect_change() {
         this.param.isValid = true;
         this.param.value = this.edSelect.value;
+        this.triggerEvent("change", this.param);
+    }
+    onEdDia_change() {
+        this.param.isValid = true;
+        this.param.value = this.edDia.value.format("YYYY-MM-DD");        
         this.triggerEvent("change", this.param);
     }
 }

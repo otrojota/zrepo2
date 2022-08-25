@@ -106,7 +106,6 @@ class DataSets {
             let f = {time:{"$gte":fromTime, "$lte":toTime}}
             if (filter) {
                 let ds = this.dataSets[dsCode];
-                console.log("ds", ds);
                 let or = [];
                 for (let c of ds.columns) {
                     let colFilter = {};
@@ -126,7 +125,6 @@ class DataSets {
             let f = {time:{"$gte":fromTime, "$lte":toTime}}
             if (filter) {
                 let ds = this.dataSets[dsCode];
-                console.log("ds", ds);
                 let or = [];
                 for (let c of ds.columns) {
                     let colFilter = {};
@@ -446,6 +444,18 @@ class DataSets {
             }
         }
         return rows;
+    }
+
+    async deleteRows(dsCode, startTime, endTime, filter) {
+        try {
+            filter = filter || {};
+            filter.time = {"$gte":startTime, "$lte":endTime};
+            let col = await mongo.collection(dsCode);
+            let res = await col.deleteMany(filter);
+            return res.deletedCount;
+        } catch (error) {
+            throw error;
+        }
     }
 }
 

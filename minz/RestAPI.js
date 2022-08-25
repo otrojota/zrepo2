@@ -156,6 +156,26 @@ class RestAPI {
                 }
             }
         })
+        app.delete("/dataSet/:code", async (req, res) => {
+            try {
+                await security.checkPrivilege(this.getAuth(req), "dataSet-" + req.params.code + "-write");
+                res.setHeader('Content-Type', 'application/json');
+                let startTime = parseInt(req.query.startTime);
+                let endTime = parseInt(req.query.endTime);
+                let filter = JSON.parse(req.query.filter || {});
+                if (isNaN(startTime) || isNaN(endTime)) throw "Se requiere startTime y endTime";
+                let n = await dataSets.deleteRows(req.params.code, startTime, endTime, filter);
+                res.send(JSON.stringify({n}));
+            } catch(error) {
+                console.error(error);
+                if (typeof error == "string") {
+                    res.status(400).send(error.toString())
+                } else {
+                    console.log(error);
+                    res.status(500).send("Internal Error")
+                }
+            }
+        });
         app.get("/dataSet/:code/rows", async (req, res) => {
             try {
                 await security.checkPrivilege(this.getAuth(req), "dataSet-" + req.params.code + "-read");
@@ -375,9 +395,10 @@ class RestAPI {
                 if (isNaN(startTime) || isNaN(endTime)) throw "Must indicate startTime and endTime";
                 let varData = req.query.varData?true:false;
                 let details = req.query.details?true:false;
+                let filter = JSON.parse(req.query.filter || {});
                 res.setHeader('Content-Type', 'application/json');
-                let v = await variables.deletePeriod(req.params.code, startTime, endTime, varData, details);
-                res.send(JSON.stringify(v));
+                let n = await variables.deletePeriod(req.params.code, startTime, endTime, varData, details, filter);
+                res.send(JSON.stringify({n}));
             } catch(error) {
                 if (typeof error == "string") {
                     res.status(400).send(error.toString())
