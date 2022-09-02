@@ -1,4 +1,4 @@
-# docker buildx build --push --platform linux/amd64,linux/arm64 -t docker.homejota.net/geoos/zrepo2:latest -t docker.homejota.net/geoos/zrepo2:0.10 .
+# docker buildx build --push --platform linux/amd64,linux/arm64 -t docker.homejota.net/geoos/zrepo2:latest -t docker.homejota.net/geoos/zrepo2:0.11 .
 # 
 FROM node:16-alpine
 EXPOSE 8096
