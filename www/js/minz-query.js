@@ -147,7 +147,9 @@ class MinZQuery {
         if (filters) filters = JSON.parse(JSON.stringify(filters));
         let fixedFilters = q.fixedFilters;
         if (fixedFilters) fixedFilters = JSON.parse(JSON.stringify(fixedFilters));
-        return new MinZQuery(q.zRepoClient, q.variable, q.groupingDimension, fixedFilters, filters, q.accum, q.hGroupingDimension, q.vGroupingDimension);
+        let c = new MinZQuery(q.zRepoClient, q.variable, q.groupingDimension, fixedFilters, filters, q.accum, q.hGroupingDimension, q.vGroupingDimension);
+        if (q.temporality) c.temporality = q.temporality;
+        return c;
     }
     constructor(zRepoClient, variable, groupingDimension, fixedFilters, filters, accum, hGroupingDimension, vGroupingDimension) {  
         this.zRepoClient = zRepoClient;
