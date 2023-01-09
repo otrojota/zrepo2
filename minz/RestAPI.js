@@ -395,7 +395,7 @@ class RestAPI {
                 if (isNaN(startTime) || isNaN(endTime)) throw "Must indicate startTime and endTime";
                 let varData = req.query.varData?true:false;
                 let details = req.query.details?true:false;
-                let filter = JSON.parse(req.query.filter || {});
+                let filter = JSON.parse(req.query.filter || "{}");
                 res.setHeader('Content-Type', 'application/json');
                 let n = await variables.deletePeriod(req.params.code, startTime, endTime, varData, details, filter);
                 res.send(JSON.stringify({n}));
