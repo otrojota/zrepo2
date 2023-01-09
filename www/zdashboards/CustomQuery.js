@@ -6,7 +6,8 @@ const queryCharts = {
     "heatmap":"zdashboards/HeatMap",
     "gauge":"zdashboards/Gauge",
     "time-dim":"zdashboards/TimeDim",
-    "labels":"zdashboards/Labels"
+    "labels":"zdashboards/Labels",
+    "dim-dim-table":"zdashboards/DimDimTable"
 }
 
 class CustomQuery extends ZCustomController {    
@@ -24,6 +25,8 @@ class CustomQuery extends ZCustomController {
             code:"dim-serie", name:"Barras por Dimensiones"
         }, {
             code:"heatmap", name:"Heat Map"
+        }, {
+            code:"dim-dim-table", name:"Tabla Dim/Dim"
         }, {
             code:"gauge", name:"Gauge"
         }, {
@@ -158,6 +161,7 @@ class CustomQuery extends ZCustomController {
             "time-serie":"./chartProps/WTimeSerie",
             "time-dim":"./chartProps/WTimeDim",
             "labels":"./chartProps/WLabels",
+            "dim-dim-table":"./chartProps/WDimDimTable"
         }
         this.showDialog(w[this.edQuery.value], this.opcionesQuery, opciones => {
             opciones.variable = this.variable;
@@ -223,6 +227,13 @@ class CustomQuery extends ZCustomController {
                     rutaH:null, rutaV:null,
                     variable:this.minzQuery.variable,
                     indiceColor:0
+                };
+                break;
+            case "dim-dim-table":
+                this.cmdConfigurarRow.show();
+                this.opcionesQuery = {
+                    rutaH:null, rutaV:null,
+                    variable:this.minzQuery.variable
                 };
                 break;
             case "gauge":
