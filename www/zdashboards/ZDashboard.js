@@ -97,6 +97,7 @@ class ZDashboard extends ZCustomController {
                         "dimSerie":"zdashboards/DimSerie",
                         "dimTable":"zdashboards/DimTable",
                         "heatMap":"zdashboards/HeatMap",
+                        "dim-dim-table":"zdashboards/DimDimTable",
                         "gauge":"zdashboards/Gauge",
                         "timeDim":"zdashboards/TimeDim",
                         "forceDirectedTree":"zdashboards/ForceDirectedTree"

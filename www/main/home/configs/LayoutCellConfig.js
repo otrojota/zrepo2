@@ -37,6 +37,8 @@ class LayoutCellConfig extends ZCustomController {
             c = {id:this.newId(), cellIndex:this.cellNode.cellIndex, type:this.selectedType, height:300, acumulador:"value", useQuery:true, useTemporality:false};
         } else if (this.selectedType == "heatMap") {
             c = {id:this.newId(), cellIndex:this.cellNode.cellIndex, type:this.selectedType, height:300, acumulador:"value", indiceColor:1, useQuery:true, useTemporality:false};
+        } else if (this.selectedType == "dim-dim-table") {
+            c = {id:this.newId(), cellIndex:this.cellNode.cellIndex, type:this.selectedType, height:300, acumulador:"value", useQuery:true, useTemporality:false};
         } else if (this.selectedType == "gauge") {
             c = {id:this.newId(), cellIndex:this.cellNode.cellIndex, type:this.selectedType, height:200, acumulador:"value", min:0, max:100000, firstColor:"#0f9747", firstLabel:"Bajo", 
                     ranges:[{
