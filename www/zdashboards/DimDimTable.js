@@ -1,5 +1,6 @@
 class DimDimTable extends ZDashboardElement {
     get code() {return "dim-dim-table"}
+    get exportable() {return true}
     async refresh(start, end, operation = "refresh") {
         try {
             if (operation == "refresh") {
@@ -21,6 +22,7 @@ class DimDimTable extends ZDashboardElement {
             let {promise, controller} = await this.q.query({
                 format:"dim-dim", startTime:start.valueOf(), endTime:end.valueOf()
             });
+            // TODO: Implementar DrillDown
             let canDrillDownH = this.q.hGroupingDimension.indexOf(".") > 0;
             let canDrillDownV = this.q.vGroupingDimension.indexOf(".") > 0;
             let data = await promise;
@@ -38,7 +40,7 @@ class DimDimTable extends ZDashboardElement {
                 else return 0;
             });
 
-            console.log("data", data, canDrillDownH, canDrillDownV);
+            //console.log("data", data, canDrillDownH, canDrillDownV);
 
             // Contar filas y columnas para calcular tamaño mínimo
             let filas = {}, columnas = {}, valores = {};
@@ -49,10 +51,6 @@ class DimDimTable extends ZDashboardElement {
             })
             filas = Object.keys(filas).map(key => (filas[key]));
             columnas = Object.keys(columnas).map(key => (columnas[key]));
-
-            console.log("data", data);
-            console.log("filas", filas);
-            console.log("columnas", columnas);
 
             let nDec = this.q.variable.options?this.q.variable.options.decimals:2;
             if (isNaN(nDec)) nDec = 2;
@@ -98,170 +96,12 @@ class DimDimTable extends ZDashboardElement {
             `;
 
             this.tableContainer.innerHTML = html;
-            
-            /*
-            let nFilas = filas.length;
-            let nColumnas = columnas.length;
 
-            let nDec = this.q.variable.options?this.q.variable.options.decimals:2;
-            if (isNaN(nDec)) nDec = 2;
-            let fmt = "#."; 
-            for (let i=0; i<nDec; i++) fmt+="#";
-            this.root.numberFormatter.set("numberFormat", fmt);
-
-            this.root.setThemes([am5themes_Animated.new(this.root), am5themes_Dark.new(this.root)]);
-            let chart = this.root.container.children.push(am5xy.XYChart.new(this.root, {panX: false, panY: false, wheelX: "none", wheelY: "none", layout: this.root.verticalLayout}));
-
-            let unidad;
-            if (this.q.accum == "n") {
-                unidad = "N°";
-            } else {
-                unidad = this.q.variable.options.unit;
-            }  
-
-            let yRenderer = am5xy.AxisRendererY.new(this.root, {visible: false, minGridDistance: 30});  // , inversed: true
-            //yRenderer.grid.template.set("visible", false);
-            yRenderer.labels.template.setAll({
-                centerY: am5.p50,
-                centerX: am5.p100,
-                paddingRight: 15
-            });
-            if (canDrillDownV) {
-                yRenderer.labels.template.setup = target => {
-                    target.set("background", am5.Rectangle.new(this.root, {
-                        fill: am5.color(0x000000),
-                        fillOpacity: 0
-                    }));
-                }
-                yRenderer.labels.template.set("cursorOverStyle", "crosshair");
-                yRenderer.labels.template.events.on("click", e => {
-                    console.log("dataContext", e.target.dataItem.dataContext);
-                    if (e.target.dataItem.dataContext) this.drilldown("v", e.target.dataItem.dataContext.vCode);
-                    else console.error("No dataContext in target.dataItem", e.target);
-                });
-            }
-            let yAxis = chart.yAxes.push(am5xy.CategoryAxis.new(this.root, {maxDeviation: 0, renderer: yRenderer, categoryField: "name"}));
-
-            let xRenderer = am5xy.AxisRendererX.new(this.root, {visible: false, minGridDistance: 30, opposite:true});
-            //xRenderer.grid.template.set("visible", false);
-            xRenderer.labels.template.setAll({
-                rotation: -90,
-                centerY: am5.p50,
-                centerX: am5.p100,
-                paddingRight: 15,
-            });
-            if (canDrillDownH) {
-                xRenderer.labels.template.setup = target => {
-                    target.set("background", am5.Rectangle.new(this.root, {
-                        fill: am5.color(0x000000),
-                        fillOpacity: 0
-                    }));
-                }
-                xRenderer.labels.template.set("cursorOverStyle", "crosshair");
-                xRenderer.labels.template.events.on("click", e => {
-                    console.log("dataContext", e.target.dataItem.dataContext);
-                    if (e.target.dataItem.dataContext) this.drilldown("h", e.target.dataItem.dataContext.code);
-                    else console.error("No dataContext in target.dataItem", e.target);
-                });
-            }
-            let xAxis = chart.xAxes.push(am5xy.CategoryAxis.new(this.root, {renderer: xRenderer, categoryField: "name"}));
-
-            let series = chart.series.push(am5xy.ColumnSeries.new(this.root, {
-                calculateAggregates: true,
-                stroke: am5.color(0xffffff),
-                clustered: false,
-                xAxis: xAxis,
-                yAxis: yAxis,
-                categoryXField: "hName",
-                categoryYField: "vName",
-                valueField: "valor"
-            }));
-
-            series.columns.template.setAll({
-                tooltipText: "{categoryY}, {categoryX}: {value} [[" + unidad + "]]",
-                strokeOpacity: 1,
-                strokeWidth: 2,
-                width: am5.percent(100),
-                height: am5.percent(100)
-            });
-
-            let circleTemplate = am5.Template.new({});
-            series.set("heatRules", [{
-                target: circleTemplate, min: 12, max: 24, dataField: "value", key: "radius"
-            }, {
-                target: series.columns.template, min: am5.color(0xfffb77), max: am5.color(0xfe131a), dataField: "value", key: "fill"
-            }]);
-
-            series.bullets.push(() => {
-                return am5.Bullet.new(this.root, {
-                    sprite: am5.Circle.new(
-                        this.root,
-                        {
-                            fill: am5.color(0x000000),
-                            fillOpacity: 0.5,
-                            strokeOpacity: 0
-                        },
-                        circleTemplate
-                    )
-                });
-            });
-
-            series.bullets.push(() => {
-                return am5.Bullet.new(this.root, {
-                    sprite: am5.Label.new(this.root, {
-                        fill: am5.color(0xffffff),
-                        populateText: true,
-                        centerX: am5.p50,
-                        centerY: am5.p50,
-                        fontSize: 9,
-                        text: "{value}"
-                    })
-                });
-            });
-
-            let heatLegend = chart.bottomAxesContainer.children.push(am5.HeatLegend.new(this.root, {
-                orientation: "horizontal",
-                endColor: am5.color(0xfffb77),
-                startColor: am5.color(0xfe131a)
-            }));
-
-            series.columns.template.events.on("pointerover", function(event) {
-                var di = event.target.dataItem;
-                if (di) {
-                    heatLegend.showValue(di.get("value", 0));
-                }
-            });
-
-            this.chartContainer.style.setProperty("min-height", "300px");
-            series.events.on("datavalidated", () => {
-                heatLegend.set("startValue", series.getPrivate("valueHigh"));
-                heatLegend.set("endValue", series.getPrivate("valueLow"));
-                setTimeout(_ => {
-                    let cellHeight = 50, cellWidth = 60;
-                    let adjustHeight = nFilas * cellHeight + xAxis.height() + heatLegend.height() + 40;
-                    this.chartContainer.style.setProperty("min-height", adjustHeight + "px");
-                    let adjustWidth = nColumnas * cellWidth + yAxis.width() + 50;
-                    this.chartContainer.style.setProperty("min-width", adjustWidth + "px");
-                }, 50);
-                
-            });
-
-            xAxis.data.setAll(columnas);
-            yAxis.data.setAll(filas);
-            series.data.setAll(data);
-
-            if (this.drillStack.length) {
-                let button = this.root.container.children.unshift(am5.Button.new(this.root, {
-                    dx:10, dy:10, 
-                    align:"left", valign:"top",
-                    label: am5.Label.new(this.root, {text: "< Volver"})
-                }))
-                button.events.on("click", _ => {
-                    setTimeout(_ => this.drillUp(), 50);
-                });
-            }
-            this.chart = chart;
-            */
+            // Guardar los datos para exportación
+            this.filas = filas;
+            this.columnas = columnas;
+            this.valores = valores;
+                        
         } catch(error) {
             console.error(error);
             this.showError(error.toString());
@@ -307,6 +147,49 @@ class DimDimTable extends ZDashboardElement {
 
     doResize() {
         super.doResize();
+    }
+
+    export() {
+        console.log("export", this);
+        let nDec = this.q.variable.options?this.q.variable.options.decimals:2;
+        if (isNaN(nDec)) nDec = 2;
+        let periodo = describePeriodoParaBloqueTemporalidad(this.dashboard.indiceBloqueTemporalidad, this.dashboard.start, this.dashboard.end);
+        let titulo = this.options && this.options.titulo?this.options.titulo:"Exportación de Datos";
+
+        // https://docs.sheetjs.com/docs/getting-started/example
+
+        let rows = [[titulo], [periodo]];
+
+        // Fila con etiquetas de dimension horizontal
+        let row = [""];
+        for (let iCol=0; iCol<this.columnas.length; iCol++) {
+            let columna = this.columnas[iCol];
+            row.push(columna.name);            
+        }
+        rows.push(row);
+
+        // Filas con Etiqueta Vertical y Datos
+        for (let iRow=0; iRow<this.filas.length; iRow++) {
+            let fila = this.filas[iRow];
+            row = [fila.name];
+            for (let iCol=0; iCol<this.columnas.length; iCol++) {
+                let columna = this.columnas[iCol];
+                let valor = this.valores[fila.code + "-" + columna.code];
+                if (!isNaN(valor)) {
+                    valor = parseFloat(valor).toFixed(nDec);
+                } else {
+                    valor = "";
+                }
+                row.push(valor);            
+            }
+            rows.push(row);
+        }
+
+
+        const worksheet = XLSX.utils.aoa_to_sheet(rows);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Export");
+        XLSX.writeFile(workbook, "export.xlsx", { compression: true });
     }
 }
 ZVC.export(DimDimTable);

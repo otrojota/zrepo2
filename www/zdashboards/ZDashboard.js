@@ -50,9 +50,11 @@ class ZDashboard extends ZCustomController {
         this.layoutContainer.html = "";
         await this.createLayoutFrom(this.dashboard.config.layout, this.layoutContainer.view);
         this.cmdDesignElement.hide();
+        this.cmdExportData.hide();
         this.doResize();
     }
     async createLayoutFrom(layout, container) {
+        this.elementControllers = {};
         for (let i=0; i<layout.size; i++) {
             let cmp = layout.components.find(c => (c.cellIndex == i));
 
@@ -80,6 +82,30 @@ class ZDashboard extends ZCustomController {
                             this.cmdDesignElement.pos = {left, top};
                         });
                     }
+                } else {
+                    div.addEventListener("mouseenter", e => {
+                        let controller = this.elementControllers[cmp.id];
+                        this.currentController = controller;
+                        if (controller && controller.exportable) {
+                            this.selectedElement = cmp;
+                            this.cmdExportData.show();
+                            let div = this.layoutContainer.find("#" + id);
+                            let containerRect = this.layoutContainer.view.getBoundingClientRect();
+                            let cellRect = div.getBoundingClientRect();
+                            let btnSize = this.cmdExportData.size;
+                            let left = cellRect.left - containerRect.left - btnSize.width + cellRect.width - 20;
+                            let top = cellRect.top - containerRect.top + 3;
+                            this.cmdExportData.pos = {left, top};
+                        } else {
+                            this.cmdExportData.hide();
+                        }
+                    });                    
+                    /*
+                    div.addEventListener("mouseleave", e => {                                                
+                        this.currentController = null;
+                        this.cmdExportData.hide();
+                    });
+                    */                    
                 }
             }
             if (this.designMode) cellClasses += " zdashboard-cell-design-mode";
@@ -107,6 +133,7 @@ class ZDashboard extends ZCustomController {
                         return;
                     }
                     let controller = await ZVC.loadComponent(div, this, zvcElement);
+                    this.elementControllers[cmp.id] = controller;
                     await controller.init(cmp);
                     controller.setDashboard(this);
                     await controller.initElement();
@@ -326,6 +353,15 @@ class ZDashboard extends ZCustomController {
     onCmdDesignElement_click() {
         if (this.selectedElement) {
             this.triggerEvent("selectDesignElement", this.selectedElement);
+        }
+    }
+    async onCmdExportData_click() {
+        if (this.currentController) {
+            try {
+                await this.currentController.export();
+            } catch (error) {
+                this.showDialog("common/WError", {message: error.toString()});
+            }
         }
     }
 }

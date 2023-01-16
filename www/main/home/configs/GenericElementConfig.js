@@ -102,6 +102,7 @@ class GenericElementConfig extends ZCustomController {
             "dimTable":"zdashboards/chartProps/WDimTable",
             "heatMap":"zdashboards/chartProps/WHeatMap",
             "gauge":"zdashboards/chartProps/WGauge",
+            "dim-dim-table":"zdashboards/chartProps/WDimDimTable",
             "timeDim":"zdashboards/chartProps/WTimeDim",
             "forceDirectedTree":"zdashboards/chartProps/WForceDirectedTree"
         }[this.component.type];

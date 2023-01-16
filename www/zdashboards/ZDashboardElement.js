@@ -7,6 +7,7 @@ class ZDashboardElement extends ZCustomController {
     get tableContainer() {return this.find("#" + this.tableContainerId)}
     get titleDivId() {return "chartTitle-" + this.zId}
     get titleDiv() {return this.find("#" + this.titleDivId)}
+    get exportable() {return false}
     get root() {
         if (this._root) return this._root;
         this._root = am5.Root.new(this.chartContainerId);
