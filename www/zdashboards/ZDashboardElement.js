@@ -18,6 +18,7 @@ class ZDashboardElement extends ZCustomController {
     get dependsOnTime() {return true}
 
     onThis_init(options) {
+        this.options = {};
         if (options) this.setOptions(options);
         this.overlay = null;
         if (options && options.titulo && this.titleDiv) {
@@ -59,6 +60,15 @@ class ZDashboardElement extends ZCustomController {
     }
     setQuery(q) {
         this.q = MinZQuery.cloneQuery(q);
+        if (this.options.usaVariable2) {
+            this.q2 = MinZQuery.cloneQuery(q);
+            this.q2.filters = this.options.filters2 || [];
+            let v = window.zRepoClient.variables.find(v => v.code == this.options.variable2);
+            this.q2.variable = v;
+            this.q2.accum = this.options.acumulador2;
+        } else {
+            this.q2 = null;
+        }
     }
     setOptions(opts) {
         this.options = opts;
@@ -70,14 +80,17 @@ class ZDashboardElement extends ZCustomController {
     }
     declareParams() {return []}    
     dependsOn() {
-        return (this.options.filters || []).filter(f => f.valor.startsWith("${")).map(f => f.valor.substr(2, f.valor.length - 3));
+        let f1 = (this.options.filters || []).filter(f => f.valor.startsWith("${")).map(f => f.valor.substr(2, f.valor.length - 3));
+        let f2 = (this.options.filters2 || []).filter(f => f.valor.startsWith("${")).map(f => f.valor.substr(2, f.valor.length - 3));
+        return f1.concat(f2);
     }
     setParam(name, value) {this.dashboard.setParam(name, value)}
 
-    prepareFilters() {
+    prepareFilters(filters) {
+        filters = filters || this.options.filters;
         // reemplazar parámetros por su valor y retornar
         let ret = [];
-        for (let f of (this.options.filters || [])) {
+        for (let f of (filters || [])) {
             if (f.valor.startsWith("${")) {
                 let paramName = f.valor.substr(2, f.valor.length - 3);
                 let v = this.dashboard.getParam(paramName);

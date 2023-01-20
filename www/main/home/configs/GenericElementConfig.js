@@ -110,7 +110,9 @@ class GenericElementConfig extends ZCustomController {
             this.showDialog("common/WError", {message:"Componente " + this.component.type + " no manejado"});
             return;
         }
+        this.component.dashboard = this.getDashboard();
         this.showDialog(w, this.component, opts => {
+            delete this.component.dashboard;
             Object.keys(opts).forEach(k => this.component[k] = opts[k]);
             this.triggerEvent("designChange");
         })

@@ -329,7 +329,7 @@ class MinZQuery {
             this.startTime = args.startTime;
             this.endTime = args.endTime;
             this.timeDescription = "custom";
-        } else if (!args.format.startsWith("dim-rows")) {
+        } else if (!args.format.startsWith("dim-row")) {
             let time = args.time;
             let temporality = args.temporality || this.variable.temporality;
             let {t0, t1, desc} = this.zRepoClient.normalizaTiempo(temporality, time);
@@ -392,6 +392,10 @@ class MinZQuery {
                 variable:this.variable, 
                 acumulador:this.accum
             }
+        } else if (args.format == "dim-row-up") {
+            return zPost("dimMoveUp.zrepo", {dimCode:this.code, textFilter:args.textFilter, filter:filtro, rowCode:args.rowCode});
+        } else if (args.format == "dim-row-down") {
+            return zPost("dimMoveDown.zrepo", {dimCode:this.code, textFilter:args.textFilter, filter:filtro, rowCode:args.rowCode});
         } else throw "Format '" + args.format + "' not handled";
         return this.zRepoClient.query(q, this.startTime, this.endTime);
     }

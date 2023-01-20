@@ -46,9 +46,50 @@ class TimeSerie extends ZDashboardElement {
                 row.value = d.resultado;
                 return row;
             })
+            if (this.q2) {                
+                this.q2.filters = this.prepareFilters(this.options.filters2);
+                let {promise, controller} = await this.q2.query({
+                    format:"time-serie", startTime:start.valueOf(), endTime:end.valueOf()
+                })
+                let data2 = await promise;
+                data2 = data2.map(d => {
+                    let row = {time:d.time}
+                    row.value = d.resultado;
+                    return row;
+                });
+                let idx1 = 0, idx2 = 0, newData = [];
+                while (idx1 < data.length || idx2 < data2.length) {
+                    let row1 = idx1 < data.length?data[idx1]:null;
+                    let row2 = idx2 < data2.length?data2[idx2]:null;
+                    if (row1 && row2) {
+                        if (row1.time == row2.time) {
+                            newData.push({time: row1.time, value: row1.value, value2: row2.value});
+                            idx1++; idx2++;
+                        } else if (row1.time < row2.time) {
+                            newData.push({time: row1.time, value: row1.value})
+                            idx1++;
+                        } else {
+                            newData.push({time: row2.time, value2: row2.value})
+                            idx2++;
+                        }
+                    } else if (row1) {
+                        newData.push({time: row1.time, value: row1.value})
+                        idx1++;
+                    } else {
+                        newData.push({time: row2.time, value2: row2.value})
+                        idx2++;
+                    }
+                }
+                data = newData;
+            }
             this.root.setThemes([am5themes_Animated.new(this.root), am5themes_Dark.new(this.root)])
-            let chart = this.root.container.children.push(am5xy.XYChart.new(this.root, {panX: true, panY: true, wheelX: "panX", wheelY: "zoomX"}));
+            let chart = this.root.container.children.push(am5xy.XYChart.new(this.root, {panX: true, panY: true, wheelX: "panX", wheelY: "zoomX", layout: this.root.verticalLayout}));
             chart.set("cursor", am5xy.XYCursor.new(this.root, {behavior: "none"}));        
+
+            let legend;
+            if (this.options.leyendas && this.options.leyendas == "bottom") {
+                legend = chart.children.push(am5.Legend.new(this.root, {centerX: am5.p50,x: am5.p50}));
+            }
             
             let baseTemporality = this.getBaseTemporality();
             this.root.dateFormatter.set("dateFormat", baseTemporality.tooltipDateFormat);
@@ -65,93 +106,34 @@ class TimeSerie extends ZDashboardElement {
             else unit = this.q.variable.options?this.q.variable.options.unit:"S/U";            
             valueAxis.children.moveValue(am5.Label.new(this.root, { text: unit, rotation: -90, y: am5.p50, centerX: am5.p50 }), 0);
 
-            let series, bullet;
-            switch (this.options.serieType) {
-                case "line":
-                case "area":
-                case "smoothed-line":
-                case "smoothed-area":
-                    if (this.options.serieType.startsWith("smoothed-")) {
-                        series = chart.series.push(am5xy.SmoothedXLineSeries.new(this.root, {
-                            name:this.q.variable.name, xAxis: dateAxis, yAxis: valueAxis,
-                            valueYField: "value", valueXField: "time",
-                            tooltip: am5.Tooltip.new(this.root, {
-                                labelText: "[bold]{name}[/]\n{valueX.formatDate()}: {valueY} [[" + unit + "]]"
-                            })
-                        }));
-                    } else {
-                        series = chart.series.push(am5xy.LineSeries.new(this.root, {
-                            name:this.q.variable.name, xAxis: dateAxis, yAxis: valueAxis,
-                            valueYField: "value", valueXField: "time",
-                            tooltip: am5.Tooltip.new(this.root, {
-                                labelText: "[bold]{name}[/]\n{valueX.formatDate()}: {valueY} [[" + unit + "]]"
-                            })
-                        }));
-                    }
-                    if (this.options.serieType == "area" || this.options.serieType == "smoothed-area") {
-                        series.fills.template.setAll({fillOpacity: 0.2, visible: true});                  
-                        series.strokes.template.setAll({strokeWidth: 2});
-                    }
-                    bullet = series.bullets.push(_ => {
-                        let sprite = am5.Rectangle.new(this.root, {
-                            width:12, height:12, 
-                            centerX: am5.p50, centerY: am5.p50,
-                            fill: series.get("fill")
-                        });
-                        if (nivelTemporalidadQuery > nivelTemporalidadVariable) {
-                            sprite.set("cursorOverStyle", "crosshair");
-                            sprite.events.on("click", e => {
-                                setTimeout(_ => this.drilldownTime(e.target.dataItem.dataContext.time), 50);
-                            })
-                        }
-                        let b = am5.Bullet.new(this.root, {
-                            sprite
-                        });
-                        return b;
-                    }); 
-                    break;
-                case "columns":
-                case "curved-columns":
-                case "rounded-columns":
-                    series = chart.series.push(am5xy.ColumnSeries.new(this.root, {
-                        name:this.q.variable.name, xAxis: dateAxis, yAxis: valueAxis,
-                        valueYField: "value", valueXField: "time",
-                        sequencedInterpolation: true,
-                        tooltip: am5.Tooltip.new(this.root, {
-                            labelText: "[bold]{name}[/]\n{valueX.formatDate()}: {valueY} [[" + unit + "]]"
-                        })
-                    }));
-                    let template = series.columns.template;       
-                    if (this.options.serieType == "curved-columns") {
-                        template.setAll({width: am5.percent(120), fillOpacity: 0.9, strokeOpacity: 0});
-                        template.adapters.add("fill", (fill, target) => {return chart.get("colors").getIndex(series.columns.indexOf(target));});
-                        template.adapters.add("stroke", (stroke, target) => {return chart.get("colors").getIndex(series.columns.indexOf(target));});
-                        template.set("draw", (display, target) => {
-                            var w = target.getPrivate("width", 0);
-                            var h = target.getPrivate("height", 0);
-                            display.moveTo(0, h);
-                            display.bezierCurveTo(w / 4, h, w / 4, 0, w / 2, 0);
-                            display.bezierCurveTo(w - w / 4, 0, w - w / 4, h, w, h);
-                        });
-                    } else if (this.options.serieType == "rounded-columns") {
-                        template.setAll({
-                            cornerRadiusTL: 15,
-                            cornerRadiusTR: 15,
-                            width: am5.percent(70),
-                            strokeOpacity: 1
-                        });
-                    }         
-                    if (nivelTemporalidadQuery > nivelTemporalidadVariable) {
-                        template.set("cursorOverStyle", "crosshair");
-                        //template.cursorOverStyle = "crosshair";
-                        template.events.on("click", e => {
-                            setTimeout(_ => this.drilldownTime(e.target.dataItem.dataContext.time), 50);
-                        })
-                    }
-                    break;
-            }
-
+            if (this.options.nombreSerie) this.q.serieName = this.options.nombreSerie;
+            let series = this.creaSerie(
+                chart,
+                this.q, this.options.serieType, dateAxis, valueAxis, "value", unit, nivelTemporalidadQuery, nivelTemporalidadVariable
+            );
             series.data.setAll(data);
+            if (legend) legend.data.push(series);
+
+            let series2, valueAxis2, unit2;
+            if (this.q2) {
+                if (this.options.nombreSerie2) this.q2.serieName = this.options.nombreSerie2;
+                if (this.q2.accum == "n") unit2 = "N°";
+                else unit2 = this.q2.variable.options?this.q2.variable.options.unit:"S/U";
+                if (unit == unit2) {
+                    valueAxis2 = valueAxis;
+                } else {
+                    valueAxis2 = chart.yAxes.push(am5xy.ValueAxis.new(this.root, {
+                        renderer: am5xy.AxisRendererY.new(this.root, {opposite:true})
+                    }));
+                    valueAxis2.children.moveValue(am5.Label.new(this.root, { text: unit2, rotation: -90, y: am5.p50, centerX: am5.p50 }), 0);
+                }
+                series2 = this.creaSerie(
+                    chart,
+                    this.q2, this.options.serieType2, dateAxis, valueAxis2, "value2", unit2, nivelTemporalidadQuery, nivelTemporalidadVariable
+                );
+                series2.data.setAll(data);
+                if (legend) legend.data.push(series2);
+            }
 
             if (this.options.zoomTiempo) {
                 chart.set("scrollbarX", am5.Scrollbar.new(this.root, {orientation: "horizontal"}));
@@ -175,6 +157,95 @@ class TimeSerie extends ZDashboardElement {
             console.error(error);
             this.showError(error.toString());
         }
+    }
+
+    creaSerie(chart, q, serieType, dateAxis, valueAxis, valueYField, unit, nivelTemporalidadQuery, nivelTemporalidadVariable) {
+        let series, serieName = q.serieName?q.serieName:q.variable.name;
+        switch (serieType) {
+            case "line":
+            case "area":
+            case "smoothed-line":
+            case "smoothed-area":
+                if (serieType.startsWith("smoothed-")) {
+                    series = chart.series.push(am5xy.SmoothedXLineSeries.new(this.root, {
+                        name:serieName, xAxis: dateAxis, yAxis: valueAxis,
+                        valueYField: valueYField, valueXField: "time",
+                        tooltip: am5.Tooltip.new(this.root, {
+                            labelText: "[bold]{name}[/]\n{valueX.formatDate()}: {valueY} [[" + unit + "]]"
+                        })
+                    }));
+                } else {
+                    series = chart.series.push(am5xy.LineSeries.new(this.root, {
+                        name:serieName, xAxis: dateAxis, yAxis: valueAxis,
+                        valueYField: valueYField, valueXField: "time",
+                        tooltip: am5.Tooltip.new(this.root, {
+                            labelText: "[bold]{name}[/]\n{valueX.formatDate()}: {valueY} [[" + unit + "]]"
+                        })
+                    }));
+                }
+                if (serieType == "area" || serieType == "smoothed-area") {
+                    series.fills.template.setAll({fillOpacity: 0.2, visible: true});                  
+                    series.strokes.template.setAll({strokeWidth: 2});
+                }
+                series.bullets.push(_ => {
+                    let sprite = am5.Rectangle.new(this.root, {
+                        width:12, height:12, 
+                        centerX: am5.p50, centerY: am5.p50,
+                        fill: series.get("fill")
+                    });
+                    if (nivelTemporalidadQuery > nivelTemporalidadVariable) {
+                        sprite.set("cursorOverStyle", "crosshair");
+                        sprite.events.on("click", e => {
+                            setTimeout(_ => this.drilldownTime(e.target.dataItem.dataContext.time), 50);
+                        })
+                    }
+                    let b = am5.Bullet.new(this.root, {
+                        sprite
+                    });
+                    return b;
+                }); 
+                break;
+            case "columns":
+            case "curved-columns":
+            case "rounded-columns":
+                series = chart.series.push(am5xy.ColumnSeries.new(this.root, {
+                    name:serieName, xAxis: dateAxis, yAxis: valueAxis,
+                    valueYField: valueYField, valueXField: "time",
+                    sequencedInterpolation: true,
+                    tooltip: am5.Tooltip.new(this.root, {
+                        labelText: "[bold]{name}[/]\n{valueX.formatDate()}: {valueY} [[" + unit + "]]"
+                    })
+                }));
+                let template = series.columns.template;       
+                if (serieType == "curved-columns") {
+                    template.setAll({width: am5.percent(120), fillOpacity: 0.9, strokeOpacity: 0});
+                    template.adapters.add("fill", (fill, target) => {return chart.get("colors").getIndex(series.columns.indexOf(target));});
+                    template.adapters.add("stroke", (stroke, target) => {return chart.get("colors").getIndex(series.columns.indexOf(target));});
+                    template.set("draw", (display, target) => {
+                        var w = target.getPrivate("width", 0);
+                        var h = target.getPrivate("height", 0);
+                        display.moveTo(0, h);
+                        display.bezierCurveTo(w / 4, h, w / 4, 0, w / 2, 0);
+                        display.bezierCurveTo(w - w / 4, 0, w - w / 4, h, w, h);
+                    });
+                } else if (serieType == "rounded-columns") {
+                    template.setAll({
+                        cornerRadiusTL: 15,
+                        cornerRadiusTR: 15,
+                        width: am5.percent(70),
+                        strokeOpacity: 1
+                    });
+                }         
+                if (nivelTemporalidadQuery > nivelTemporalidadVariable) {
+                    template.set("cursorOverStyle", "crosshair");
+                    //template.cursorOverStyle = "crosshair";
+                    template.events.on("click", e => {
+                        setTimeout(_ => this.drilldownTime(e.target.dataItem.dataContext.time), 50);
+                    })
+                }
+                break;
+        }
+        return series;
     }
 
     drilldownTime(date) {

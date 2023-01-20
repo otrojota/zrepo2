@@ -13,6 +13,11 @@ class DimDimTable extends ZDashboardElement {
 
             this.dispose();
 
+            let totHorizontal = this.options.totHorizontal || "none";
+            let totVertical = this.options.totVertical || "none";
+            let totGlobal = this.options.totGlobal || "none";
+            let vacio = this.options.vacio || "none";
+
             if (!this.q || !this.options.rutaH || !this.options.rutaV) return;            
             if (operation == "refresh") {
                 this.q.hGroupingDimension = this.options.rutaH;
@@ -43,11 +48,12 @@ class DimDimTable extends ZDashboardElement {
             //console.log("data", data, canDrillDownH, canDrillDownV);
 
             // Contar filas y columnas para calcular tamaño mínimo
-            let filas = {}, columnas = {}, valores = {};
+            let filas = {}, columnas = {}, valores = {}, originalData = {};
             data.forEach(row => {
                 filas[row.vCode] = {code:row.vCode, name:row.vName};
                 columnas[row.hCode] = {code:row.hCode, name:row.hName};
                 valores[row.vCode + "-" + row.hCode] = row.valor;
+                originalData[row.vCode + "-" + row.hCode] = row;
             })
             filas = Object.keys(filas).map(key => (filas[key]));
             columnas = Object.keys(columnas).map(key => (columnas[key]));
@@ -66,30 +72,130 @@ class DimDimTable extends ZDashboardElement {
                         <th class="dim-dim-table-col-hdr">${columna.name}</th>
                 `;
             }
+            if (totHorizontal != "none" || totGlobal != "none") {
+                html += `
+                        <th class="dim-dim-table-col-hdr text-end">TOTALES</th>
+                `;
+            }
             html += `
                     </tr>
             `;
+            let acumGlobal, acumColumnas = {};
             for (let iRow=0; iRow<filas.length; iRow++) {
-                let fila = filas[iRow];
+                let fila = filas[iRow], acumFila;
                 html += `
                     <tr class="dim-dim-table-row">
                         <th class="dim-dim-table-row-hdr">${fila.name}</th>
                 `;
                 for (let iCol=0; iCol<columnas.length; iCol++) {
                     let columna = columnas[iCol];
-                    let valor = valores[fila.code + "-" + columna.code];
+                    let valor = parseFloat(valores[fila.code + "-" + columna.code]);
+                    if (isNaN(valor) && vacio == "cero") valor = 0;
+                    let stValor = "";
                     if (!isNaN(valor)) {
-                        valor = parseFloat(valor).toFixed(nDec);
-                    } else {
-                        valor = "";
+                        stValor = "" + valor.toFixed(nDec);
+                        // Acumulador horizontal (fila)
+                        if (totHorizontal == "sum") {
+                            acumFila = (acumFila === undefined?0:acumFila) + valor;
+                        } else if (totHorizontal == "avg_cells") {
+                            if (acumFila === undefined) acumFila = {n:0, sum:0};
+                            acumFila.n++;
+                            acumFila.sum += valor;
+                        } else if (totHorizontal == "avg_data") {
+                            let d = originalData[fila.code + "-" + columna.code];
+                            if (d) {
+                                if (acumFila === undefined) acumFila = {n:0, sum:0};
+                                acumFila.n += d.n;
+                                acumFila.sum += d.value;    
+                            }
+                        }
+
+                        // Acumuladores verticales (columnas)
+                        if (totVertical == "sum") {
+                            if (!acumColumnas[columna.code]) acumColumnas[columna.code] = 0;
+                            acumColumnas[columna.code] += valor;
+                        } else if (totVertical == "avg_cells") {
+                            if (!acumColumnas[columna.code]) acumColumnas[columna.code] = {n:0, sum:0};
+                            acumColumnas[columna.code].n++;
+                            acumColumnas[columna.code].sum += valor;
+                        } else if (totVertical == "avg_data") {
+                            let d = originalData[fila.code + "-" + columna.code];
+                            if (d) {
+                                if (!acumColumnas[columna.code]) acumColumnas[columna.code] = {n:0, sum:0};
+                                acumColumnas[columna.code].n += d.n;
+                                acumColumnas[columna.code].sum += d.value;
+                            }
+                        }
+
+                        // Acumulador Global
+                        if (totGlobal == "sum") {
+                            if (!acumGlobal) acumGlobal = 0;
+                            acumGlobal += valor;
+                        } else if (totGlobal == "avg_cells") {
+                            if (!acumGlobal) acumGlobal = {n:0, sum:0};
+                            acumGlobal.n++;
+                            acumGlobal.sum += valor;
+                        } else if (totGlobal == "avg_cells") {
+                            let d = originalData[fila.code + "-" + columna.code];
+                            if (d) {
+                                if (!acumGlobal) acumGlobal = {n:0, sum:0};
+                                acumGlobal.n += d.n;
+                                acumGlobal.sum += d.value;
+                            }
+                        }
                     }
                     html += `
-                        <td class="dim-dim-table-cell">${valor}</td>
+                        <td class="dim-dim-table-cell">${stValor}</td>
+                    `;
+                }
+                if (totHorizontal != "none" || totGlobal != "none") {
+                    let v = "";
+                    if (acumFila !== undefined) {
+                        if (totHorizontal == "sum") {
+                            v = "" + acumFila.toFixed(nDec);
+                        } else if (totHorizontal == "avg_cells") {
+                            v = "" + (acumFila.sum / acumFila.n).toFixed(nDec);
+                        } else if (totHorizontal == "avg_data") {
+                            v = "" + (acumFila.sum / acumFila.n).toFixed(nDec);
+                        }
+                    }
+                    html += `
+                        <td class="dim-dim-table-cell-total">${v}</td>
                     `;
                 }
                 html += `
                     </tr>
                 `;
+            }
+            if (totVertical != "none" || totGlobal != "none") {
+                html += `<tr>`;
+                html += `<td>TOTALES</td>`;
+                for (let iCol=0; iCol<columnas.length; iCol++) {
+                    let columna = columnas[iCol];
+                    let v = "", accum = acumColumnas[columna.code];
+                    if (accum !== undefined) {
+                        if (totVertical == "sum") {
+                            v = "" + accum.toFixed(nDec);
+                        } else if (totVertical == "avg_cells") {
+                            v = "" + (accum.sum / accum.n).toFixed(nDec);
+                        } else if (totVertical == "avg_cells") {
+                            v = "" + (accum.sum / accum.n).toFixed(nDec);
+                        }
+                    }                    
+                    html += `
+                            <td class="dim-dim-table-cell-total">${v}</td>
+                    `;
+                }
+                if (totGlobal != "none" || totHorizontal != "none") {
+                    let v = "";
+                    if (totGlobal == "sum" && acumGlobal) v = "" + acumGlobal.toFixed(nDec);
+                    else if (totGlobal == "avg_cells" && acumGlobal) v = "" + (acumGlobal.sum / acumGlobal.n).toFixed(nDec);
+                    else if (totGlobal == "avg_data" && acumGlobal) v = "" + (acumGlobal.sum / acumGlobal.n).toFixed(nDec);
+                    html += `
+                            <td class="dim-dim-table-cell-total">${v}</td>
+                    `;
+                }
+                html += `</tr>`;
             }
             html += `
                 </table>

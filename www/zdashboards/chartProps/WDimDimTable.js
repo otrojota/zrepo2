@@ -18,6 +18,23 @@ class WDimDimTable extends ZDialog {
         } else {
             this.edRutaV.value = this.rutaV;
         }
+        let totalizadores = [{
+            code:"none", name:"No Usar"
+        }, {
+            code:"sum", name:"Suma de Valores"
+        }, {
+            code:"avg_cells", name:"Promedio de Celdas"
+        }, {
+            code:"avg_data", name:"Promedio de Muestras Originales"
+        }]
+        this.edTotHorizontal.setRows(totalizadores, options.totHorizontal || "none");
+        this.edTotVertical.setRows(totalizadores, options.totVertical || "none");
+        this.edTotGlobal.setRows(totalizadores, options.totGlobal || "none");
+
+        this.edVacios.setRows(
+            [{code:"none", name:"No Mostrar"}, {code:"cero", name:"Llenar con ceros"}],
+            options.vacio || "none"
+        )
     }    
 
     onCmdSeleccionaRutaH_click() {
@@ -40,7 +57,11 @@ class WDimDimTable extends ZDialog {
     }
 
     async onCmdOk_click() {
-        this.close({rutaH: this.rutaH, rutaV: this.rutaV});
+        this.close({
+            rutaH: this.rutaH, rutaV: this.rutaV, totHorizontal: this.edTotHorizontal.value, 
+            totVertical: this.edTotVertical.value, totGlobal: this.edTotGlobal.value,
+            vacio: this.edVacios.value
+        });
     }
 }
 ZVC.export(WDimDimTable);

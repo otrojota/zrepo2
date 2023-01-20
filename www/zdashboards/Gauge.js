@@ -41,7 +41,7 @@ class Gauge extends ZDashboardElement {
                 centerX: am5.percent(50),
                 textAlign: "center",
                 centerY: -20,
-                fontSize: "2em"
+                fontSize: "1em"
             }));
 
             axisDataItem.set("value", this.options.min);

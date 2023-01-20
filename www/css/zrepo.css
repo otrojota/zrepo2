@@ -388,3 +388,11 @@ td a {color: black;}
     color: #fff;
     border-color: #373b3e;
 }
+
+.dim-dim-table-cell {
+    text-align: end;
+}
+.dim-dim-table-cell-total {
+    text-align: end;
+    font-weight: bold;
+}

@@ -295,6 +295,37 @@ class Dimensions {
         await cursor.close();
         return rows;
     }
+    async moveUp(dimensionCode, textFilter, filter, rowCode) {
+        try {
+            let n = await this.getRowsCount(dimensionCode, textFilter, filter);
+            let allRows = await this.getRows(dimensionCode, textFilter, filter, 0, n);
+            let idx = allRows.findIndex(r => r.code == rowCode);
+            if (idx < 1) return;
+            let r1 = allRows[idx];
+            let r2 = allRows[idx - 1];
+            let col = await mongo.collection(dimensionCode);
+            await col.updateOne({_id:r1._id}, {$set:{order:r2.order}});
+            await col.updateOne({_id:r2._id}, {$set:{order:r1.order}});
+        } catch (error) {
+            throw error;
+        }
+    }
+    async moveDown(dimensionCode, textFilter, filter, rowCode) {
+        try {
+            let n = await this.getRowsCount(dimensionCode, textFilter, filter);
+            let allRows = await this.getRows(dimensionCode, textFilter, filter, 0, n);
+            let idx = allRows.findIndex(r => r.code == rowCode);
+            if (idx < 0 || idx > (n - 2)) return;
+            let r1 = allRows[idx];
+            let r2 = allRows[idx + 1];
+            let col = await mongo.collection(dimensionCode);
+            await col.updateOne({_id:r1._id}, {$set:{order:r2.order}});
+            await col.updateOne({_id:r2._id}, {$set:{order:r1.order}});
+        } catch (error) {
+            throw error;
+        }
+    }
+
     async getAllRows(dimensionCode) {
         try {
             let col = await mongo.collection(dimensionCode);

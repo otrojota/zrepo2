@@ -114,7 +114,23 @@ class Dimensions extends ZCustomController {
         //let page = await zPost("getRows.zrepo", {dimCode:this.dimension.code, startRow, nRows})
         let textFilter = this.edTextFilter.value.trim();
         let page = await this.minzQuery.query({format:"dim-rows", textFilter, startRow, nRows});
+        page = page.map(r => {
+            r.imgUp = '<i class="fa-solid fa-caret-up text-primary"></i>';
+            r.imgDown = '<i class="fa-solid fa-caret-down text-primary"></i>';
+            return r;
+        })
         return page;
+    }
+    async onRowsList_cellClick(row, idx, fieldName) {
+        if (fieldName == "imgUp") {
+            let textFilter = this.edTextFilter.value.trim();
+            await this.minzQuery.query({format:"dim-row-up", textFilter, rowCode:row.code});
+            await this.rowsList.loadPage();
+        } else if (fieldName == "imgDown") {
+            let textFilter = this.edTextFilter.value.trim();
+            await this.minzQuery.query({format:"dim-row-down", textFilter, rowCode:row.code});
+            await this.rowsList.loadPage();
+        }
     }
     async onCmdAdd_click() {
         await this.rowsList.openNewDetails(
@@ -155,11 +171,12 @@ class Dimensions extends ZCustomController {
         this.lblDetailsCaption.text = "[" + row.code + "] " + row.name;
         let rowWithDeps = await zPost("getRowWithDependencies.zrepo", {dimCode:this.edDimension.value, code:row.code});
         let html = this.buildDetailsTree(this.edDimension.selectedRow, rowWithDeps, 0);
+        html += "<hr />Orden: " + row.order + "<hr />";
         this.detailsContainer.html = html;
         let dim = this.edDimension.selectedRow;
         let extraData = {};
         for (let field in row) {
-            if (field != "_id" && field != "code" && field != "name" && field != "order") {
+            if (field != "_id" && field != "code" && field != "name" && field != "order" && field != "imgUp" && field != "imgDown") {
                 if (dim.classifiers.findIndex(c => (c.fieldName == field)) < 0) {
                     extraData[field] = row[field];
                 }
