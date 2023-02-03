@@ -7,7 +7,8 @@ const queryCharts = {
     "gauge":"zdashboards/Gauge",
     "time-dim":"zdashboards/TimeDim",
     "labels":"zdashboards/Labels",
-    "dim-dim-table":"zdashboards/DimDimTable"
+    "dim-dim-table":"zdashboards/DimDimTable",
+    "resume-table":"zdashboards/ResumeTable",
 }
 
 class CustomQuery extends ZCustomController {    
@@ -33,6 +34,8 @@ class CustomQuery extends ZCustomController {
             code:"time-dim", name:"Serie Temporal Dimensiones"
         }, {
             code:"labels", name:"Resumen (Etiquetas)"
+        }, {
+            code:"resume-table", name:"Tabla Resumen Período"
         }])        
         this.edAcumulador.setRows([{
             code:"value", name:"Suma en Período"
@@ -161,7 +164,8 @@ class CustomQuery extends ZCustomController {
             "time-serie":"./chartProps/WTimeSerie",
             "time-dim":"./chartProps/WTimeDim",
             "labels":"./chartProps/WLabels",
-            "dim-dim-table":"./chartProps/WDimDimTable"
+            "dim-dim-table":"./chartProps/WDimDimTable",
+            "resume-table":"./chartProps/WResumeTable"
         }
         this.showDialog(w[this.edQuery.value], this.opcionesQuery, opciones => {
             opciones.variable = this.variable;
@@ -262,6 +266,17 @@ class CustomQuery extends ZCustomController {
                 this.cmdConfigurarRow.show();
                 this.edAcumulador.hide();
                 this.opcionesQuery = {layout:{c:{text:"${sum}"}}};
+                break;
+            case "resume-table":
+                this.cmdConfigurarRow.show();
+                this.edAcumulador.hide();
+                this.opcionesQuery = {
+                    variable:this.minzQuery.variable,
+                    showN: "N° Muestras",
+                    showSum: "Suma",
+                    showAvg: "Promedio",
+                    showMin: "", showMax: ""
+                };
                 break;
         }
     }

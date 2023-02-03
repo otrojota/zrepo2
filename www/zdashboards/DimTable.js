@@ -1,5 +1,6 @@
 class DimTable extends ZDashboardElement {
     get code() {return "dim-table"}
+    get exportable() {return true}
     async refresh(start, end, operation = "refresh") {
         try {
             if (operation == "refresh") this.drillStack = [];
@@ -16,7 +17,7 @@ class DimTable extends ZDashboardElement {
             });
             let canDrillDown = this.q.groupingDimension.indexOf(".") > 0;
             let data = await promise;
-            data = data.sort((d1, d2) => (d1.dim.order - d2.dim.order));
+            data = data.sort((d1, d2) => (d1.dim.order - d2.dim.order));            
             let unit;
             if (this.q.accum == "n") unit = "N°";
             else unit = this.q.variable.options?this.q.variable.options.unit:"S/U";
@@ -42,6 +43,8 @@ class DimTable extends ZDashboardElement {
                 </table>
             `;
             this.tableContainer.innerHTML = html;
+            // Guardar para exportación
+            this.data = data;
         } catch(error) {
             console.error(error);
             this.showError(error.toString());
@@ -68,6 +71,34 @@ class DimTable extends ZDashboardElement {
 
     doResize() {
         super.doResize();
+    }
+
+    export() {
+        let nDec = this.q.variable.options?this.q.variable.options.decimals:2;
+        if (isNaN(nDec)) nDec = 2;
+        let periodo = describePeriodoParaBloqueTemporalidad(this.dashboard.indiceBloqueTemporalidad, this.dashboard.start, this.dashboard.end);
+        let titulo = this.options && this.options.titulo?this.options.titulo:"Exportación de Datos";
+        let unit;
+        if (this.q.accum == "n") unit = "N°";
+        else unit = this.q.variable.options?this.q.variable.options.unit:"S/U";
+        let subtitulo = this.options.tituloColumnaDimension || "";
+
+        // https://docs.sheetjs.com/docs/getting-started/example
+
+        let rows = [[titulo], [periodo], [subtitulo, unit]];
+
+        // Fila con etiquetas de dimension horizontal        
+        for (let r of this.data) {
+            let row = [];
+            row.push(r.dim.name);
+            row.push(r.resultado);
+            rows.push(row);
+        }
+
+        const worksheet = XLSX.utils.aoa_to_sheet(rows);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Export");
+        XLSX.writeFile(workbook, "export.xlsx", { compression: true });
     }
 }
 ZVC.export(DimTable);

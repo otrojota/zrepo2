@@ -104,7 +104,8 @@ class GenericElementConfig extends ZCustomController {
             "gauge":"zdashboards/chartProps/WGauge",
             "dim-dim-table":"zdashboards/chartProps/WDimDimTable",
             "timeDim":"zdashboards/chartProps/WTimeDim",
-            "forceDirectedTree":"zdashboards/chartProps/WForceDirectedTree"
+            "forceDirectedTree":"zdashboards/chartProps/WForceDirectedTree",
+            "resume-table":"zdashboards/chartProps/WResumeTable"
         }[this.component.type];
         if (!w) {
             this.showDialog("common/WError", {message:"Componente " + this.component.type + " no manejado"});

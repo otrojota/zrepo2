@@ -48,13 +48,13 @@ class ZDashboard extends ZCustomController {
         this.params = {};
         this.dirtyParams = {};
         this.layoutContainer.html = "";
+        this.elementControllers = {};
         await this.createLayoutFrom(this.dashboard.config.layout, this.layoutContainer.view);
         this.cmdDesignElement.hide();
         this.cmdExportData.hide();
         this.doResize();
     }
     async createLayoutFrom(layout, container) {
-        this.elementControllers = {};
         for (let i=0; i<layout.size; i++) {
             let cmp = layout.components.find(c => (c.cellIndex == i));
 
@@ -83,7 +83,7 @@ class ZDashboard extends ZCustomController {
                         });
                     }
                 } else {
-                    div.addEventListener("mouseenter", e => {
+                    div.addEventListener("mouseenter", e => {                        
                         let controller = this.elementControllers[cmp.id];
                         this.currentController = controller;
                         if (controller && controller.exportable) {
@@ -126,15 +126,16 @@ class ZDashboard extends ZCustomController {
                         "dim-dim-table":"zdashboards/DimDimTable",
                         "gauge":"zdashboards/Gauge",
                         "timeDim":"zdashboards/TimeDim",
-                        "forceDirectedTree":"zdashboards/ForceDirectedTree"
+                        "forceDirectedTree":"zdashboards/ForceDirectedTree",
+                        "resume-table":"zdashboards/ResumeTable",
                     }[cmp.type];
                     if (!zvcElement) {
                         console.error("Componente ", cmp.type, " no manejado aun");
                         return;
                     }
                     let controller = await ZVC.loadComponent(div, this, zvcElement);
-                    this.elementControllers[cmp.id] = controller;
-                    await controller.init(cmp);
+                    this.elementControllers[cmp.id] = controller;                    
+                    await controller.init(cmp);                    
                     controller.setDashboard(this);
                     await controller.initElement();
                     if (cmp.useQuery) {                        

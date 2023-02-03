@@ -256,7 +256,6 @@ class DimDimTable extends ZDashboardElement {
     }
 
     export() {
-        console.log("export", this);
         let nDec = this.q.variable.options?this.q.variable.options.decimals:2;
         if (isNaN(nDec)) nDec = 2;
         let periodo = describePeriodoParaBloqueTemporalidad(this.dashboard.indiceBloqueTemporalidad, this.dashboard.start, this.dashboard.end);

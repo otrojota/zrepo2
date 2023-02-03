@@ -51,6 +51,8 @@ class LayoutCellConfig extends ZCustomController {
             c = {id:this.newId(), cellIndex:this.cellNode.cellIndex, type:this.selectedType, height:300, acumulador:"value", useQuery:true, useTemporality:false};
         } else if (this.selectedType == "dimSerie") {
             c = {id:this.newId(), cellIndex:this.cellNode.cellIndex, type:this.selectedType, height:300, acumulador:"value", useQuery:true, useTemporality:false};
+        } else if (this.selectedType == "resume-table") {
+            c = {id:this.newId(), cellIndex:this.cellNode.cellIndex, type:this.selectedType, height:300, useQuery:true, useTemporality:false, showN:"Nª Muestras", showSum:"Suma", showAvg:"Promedio", showMin:"", showMax:""};
         } else {
             console.error("Tipo de componente ", this.selectedType, " no manejado aun");
         }

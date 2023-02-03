@@ -255,6 +255,15 @@ class Dashboard extends ZCustomController {
                 _type:component.type,
                 source:component
             }
+        } else if (component.type == "resume-table") {
+            return {
+                id:component.id, 
+                label:"Resume Table", 
+                icon:"fas fa-table-cells",
+                items:false,
+                _type:component.type,
+                source:component
+            }
         }
         return {
             id:component.id, 
@@ -324,7 +333,7 @@ class Dashboard extends ZCustomController {
             await this.dsbLoader.load("./configs/DimensionFilterConfig", node.source);
         } else if (node._type == "dimRowSelector") {
             await this.dsbLoader.load("./configs/DimRowSelectorConfig", node.source);
-        } else if (".timeSerie.pie.dimSerie.dimTable.heatMap.gauge.dim-dim-table.timeDim.forceDirectedTree.".indexOf(node._type) > 0) {
+        } else if (".timeSerie.pie.dimSerie.dimTable.heatMap.gauge.dim-dim-table.timeDim.forceDirectedTree.resume-table.".indexOf(node._type) > 0) {
             await this.dsbLoader.load("./configs/GenericElementConfig", node.source);
         } else {
             console.error("Nodo ", node, " no manejado para propiedades");
