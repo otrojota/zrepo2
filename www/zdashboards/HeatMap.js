@@ -86,8 +86,8 @@ class HeatMap extends ZDashboardElement {
                 }
                 yRenderer.labels.template.set("cursorOverStyle", "crosshair");
                 yRenderer.labels.template.events.on("click", e => {
-                    console.log("dataContext", e.target.dataItem.dataContext);
-                    if (e.target.dataItem.dataContext) this.drilldown("v", e.target.dataItem.dataContext.vCode);
+                    //console.log("dataContext", e.target.dataItem.dataContext);
+                    if (e.target.dataItem.dataContext) this.drilldown("v", e.target.dataItem.dataContext.code);
                     else console.error("No dataContext in target.dataItem", e.target);
                 });
             }
@@ -110,7 +110,7 @@ class HeatMap extends ZDashboardElement {
                 }
                 xRenderer.labels.template.set("cursorOverStyle", "crosshair");
                 xRenderer.labels.template.events.on("click", e => {
-                    console.log("dataContext", e.target.dataItem.dataContext);
+                    //console.log("dataContext", e.target.dataItem.dataContext);
                     if (e.target.dataItem.dataContext) this.drilldown("h", e.target.dataItem.dataContext.code);
                     else console.error("No dataContext in target.dataItem", e.target);
                 });
@@ -242,7 +242,6 @@ class HeatMap extends ZDashboardElement {
         q2.filters = this.drillStack[0].query.filters?JSON.parse(JSON.stringify(this.drillStack[0].query.filters)):[]; 
         if (this.hDrillFilter) q2.filters.push(this.hDrillFilter);
         if (this.vDrillFilter) q2.filters.push(this.vDrillFilter);
-
         this.setQuery(q2);
         this.refresh(this.start, this.end, "push");
     }

@@ -132,6 +132,7 @@ class RestAPI {
                 await security.checkPrivilege(this.getAuth(req), "dataSet-" + req.params.code + "-write");
                 res.setHeader('Content-Type', 'application/json');
                 if (Array.isArray(req.body)) {
+                    /*
                     let respArray = [];
                     for (let row of req.body) {
                         try {
@@ -142,6 +143,9 @@ class RestAPI {
                         }
                     }
                     res.send(JSON.stringify(respArray));
+                    */
+                    let d = await dataSets.importBatch(req.params.code, req.body);
+                    res.send(JSON.stringify(d));
                 } else {
                     let d = await dataSets.importRow(req.params.code, req.body);
                     res.send(JSON.stringify(d));

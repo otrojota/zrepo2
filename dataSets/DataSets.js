@@ -7,6 +7,8 @@ const https = require("https");
 const moment = require("moment-timezone");
 const CronJob = require('cron').CronJob;
 const {Kafka} = require("kafkajs");
+const config = require("../lib/Config");
+const pluginAPI = require("../lib/PluginAPI");
 
 class DataSets {
     static get instance() {
@@ -248,6 +250,18 @@ class DataSets {
         try {
             let ds = this.dataSets[dsCode];
             if (!ds) throw "No se encontró el dataSet '" + dsCode + "'"
+
+            // Buscar preprocessors triggers
+            let changedRows = rows;
+            let preprocessors = config.dsPreprocessors[dsCode];
+            if (preprocessors && preprocessors.length) {
+                //console.log("**** Aplicar preprocessors a " + rows.length + " filas", preprocessors);
+                for (let preprocessor of preprocessors) {
+                    changedRows = await pluginAPI.runDataSetPreprocessor(preprocessor.process, changedRows, preprocessor.trigger);
+                }
+            }
+            rows = changedRows;
+
             // Buscar columna tiempo y aplicar a "time" para estandarizar
             if (!ds.columns.find(c => c.code == "time")) {
                 let timeCol = ds.columns.find(c => (c.time));

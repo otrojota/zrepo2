@@ -29,6 +29,8 @@ class LayoutCellConfig extends ZCustomController {
             c = {id:this.newId(), cellIndex:this.cellNode.cellIndex, type:this.selectedType, height:50, dimension:null, paramName:"nombreDimension", emptyText:"Filtrar por XX", nonEmptyPrefix:"XX igual a"};
         } else if (this.selectedType == "timeSerie") {
             c = {id:this.newId(), cellIndex:this.cellNode.cellIndex, type:this.selectedType, height:300, serieType:"line", zoomTiempo:true, acumulador:"value", useQuery:true, useTemporality:true};
+        } else if (this.selectedType == "timeDim") {
+            c = {id:this.newId(), cellIndex:this.cellNode.cellIndex, type:this.selectedType, height:300, serieType:"bars", zoomTiempo:true, acumulador:"value", useQuery:true, useTemporality:true};
         } else if (this.selectedType == "pie") {
             c = {id:this.newId(), cellIndex:this.cellNode.cellIndex, type:this.selectedType, height:300, acumulador:"value", useQuery:true, useTemporality:false};
         } else if (this.selectedType == "dimSerie") {

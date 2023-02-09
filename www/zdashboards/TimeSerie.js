@@ -189,7 +189,7 @@ class TimeSerie extends ZDashboardElement {
                 }
                 series.bullets.push(_ => {
                     let sprite = am5.Rectangle.new(this.root, {
-                        width:12, height:12, 
+                        width:6, height:6, 
                         centerX: am5.p50, centerY: am5.p50,
                         fill: series.get("fill")
                     });
