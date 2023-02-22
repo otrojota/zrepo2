@@ -184,70 +184,7 @@ class Variables {
         // Keep promise running and return
         return;
     }
-    /*
-    normalizeTime(temporality, time) {
-        var d = new Date(time);
-        d.setSeconds(0);
-        d.setMilliseconds(0);
-        switch(temporality) {
-            case "5m":
-                d.setMinutes(5 * parseInt(d.getMinutes() / 5));
-                return d.getTime();
-            case "15m":
-                d.setMinutes(15 * parseInt(d.getMinutes() / 15));
-                return d.getTime();
-            case "30m":
-                d.setMinutes(30 * parseInt(d.getMinutes() / 30));
-                return d.getTime();
-            case "1h":
-                d.setMinutes(0);
-                return d.getTime();
-            case "6h":
-                d.setMinutes(0);
-                d.setHours(6 * parseInt(d.getHours() / 6));
-                return d.getTime();
-            case "12h":
-                d.setMinutes(0);
-                d.setHours(12 * parseInt(d.getHours() / 12));
-                return d.getTime();
-            case "1d":
-                d.setMinutes(0);                
-                d.setHours(0);
-                return d.getTime();
-            case "1M":
-                d.setMinutes(0);                
-                d.setHours(0);
-                d.setDate(1);
-                return d.getTime();
-            case "3M":
-                d.setMinutes(0);                
-                d.setHours(0);
-                d.setDate(1);
-                d.setMonth(3 * parseInt(d.getMonth() / 3));
-                return d.getTime();
-            case "4M":
-                d.setMinutes(0);                
-                d.setHours(0);
-                d.setDate(1);
-                d.setMonth(4 * parseInt(d.getMonth() / 4));
-                return d.getTime();
-            case "6M":
-                d.setMinutes(0);                
-                d.setHours(0);
-                d.setDate(1);
-                d.setMonth(6 * parseInt(d.getMonth() / 6));
-                return d.getTime();
-            case "1y":
-                d.setMinutes(0);                
-                d.setHours(0);
-                d.setDate(1);
-                d.setMonth(0);
-                return d.getTime();
-            default:
-                throw("Temporality '" + temporality + "' not handled");
-        }
-    }
-    */
+
     normalizeTime(temporality, time) {
         var d = moment.tz(time, config.timeZone);
         d.seconds(0);

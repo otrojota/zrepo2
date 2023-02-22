@@ -310,13 +310,14 @@ class DataSets {
             }
             let triggers = (ds.triggers || []).filter(t => (t.type == "postVariable"));
             for (let trigger of triggers) {
+                let options = trigger.postVarOptions || {}; // {noIntegrityCheck: true};
                 let varRows = [];
                 for (let dsRow of rows) {
                     let varPostRow = await this.buildVarPostRow(dsCode, dsRow, trigger);
                     if (varPostRow) varRows.push(varPostRow);
                 }
                 if (varRows.length) {
-                    await variables.postDataBatch(varRows);
+                    await variables.postDataBatch(varRows, options);
                 }
             }
             triggers = (ds.triggers || []).filter(t => (t.type == "postDimension"));
