@@ -25,6 +25,21 @@ const rangosTemporalidad = {
     "1y":1000 * 60 * 60 * 24 * 365
 }
 const shortMeses = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"]
+const periodosPorTemporalidad = {
+    "hora":{name:"Hora Actual", orden:0, niveles:["5m", "15m", "30m"]},
+    "hora-1":{name:"Hora Anterior", orden:1, niveles:["5m", "15m", "30m"]},
+    "dia":{name:"Día Actual", orden:10, niveles:["5m", "15m", "30m", "1h", "6h", "12h"]},
+    "dia-1":{name:"Día Anterior", orden:11, niveles:["5m", "15m", "30m", "1h", "6h", "12h"]},
+    "mes":{name:"Mes Actual", orden:12, niveles:["5m", "15m", "30m", "1h", "6h", "12h", "1d"]},
+    "mes-1":{name:"Mes Anterior", orden:21, niveles:["5m", "15m", "30m", "1h", "6h", "12h", "1d"]},
+    "semestre":{name:"Semestre Actual", orden:30, niveles:["5m", "15m", "30m", "1h", "6h", "12h", "1d", "1M", "3M", "4M"]},
+    "semestre-1":{name:"Semestre Anterior", orden:31, niveles:["5m", "15m", "30m", "1h", "6h", "12h", "1d", "1M", "3M", "4M"]},
+    "ano":{name:"Año Actual", orden:40, niveles:["5m", "15m", "30m", "1h", "6h", "12h", "1d", "1M", "3M", "4M", "6M"]},
+    "ano-1":{name:"Año Anterior", orden:41, niveles:["5m", "15m", "30m", "1h", "6h", "12h", "1d", "1M", "3M", "4M", "6M"]},
+    "3anos":{name:"Últimos 3 Años", orden:50, niveles:["5m", "15m", "30m", "1h", "6h", "12h", "1d", "1M", "3M", "4M", "6M", "1y"]},
+    "5anos":{name:"Últimos 5 Años", orden:51, niveles:["5m", "15m", "30m", "1h", "6h", "12h", "1d", "1M", "3M", "4M", "6M", "1y"]},
+    "10anos":{name:"Últimos 10 Años", orden:52, niveles:["5m", "15m", "30m", "1h", "6h", "12h", "1d", "1M", "3M", "4M", "6M", "1y"]}
+}
 
 function getLimitesDefaultBloquesTemporalidad(idxBloque) {
     let ms = Date.now();
@@ -59,6 +74,69 @@ function getLimitesDefaultBloquesTemporalidad(idxBloque) {
     return {start, end}
 }
 
+function getLimitesDefaultPeriodoInicio(temporalidad, periodoInicio) {
+    if (!periodoInicio) periodoInicio = getPeriodoDefaultTemporalidad(temporalidad).code;
+    let ms = Date.now();
+    let start = moment.tz(ms, window.timeZone);
+    let end = start.clone();
+    if (periodoInicio == "hora") {
+        start = start.startOf("hour");
+        end = start.clone().add(1, "hour");
+    } else if (periodoInicio == "hora-1") {
+        start = start.startOf("hour").add(-1, "hour");
+        end = start.clone().add(1, "hour");
+    } else if (periodoInicio == "dia") {
+        start = start.startOf("day");
+        end = start.clone().add(1, "day");
+    } else if (periodoInicio == "dia-1") {
+        start = start.startOf("day").add(-1, "day");
+        end = start.clone().add(1, "day");
+    } else if (periodoInicio == "mes") {
+        start = start.startOf("month");
+        end = start.clone().add(1, "month");
+    } else if (periodoInicio == "mes-1") {
+        start = start.startOf("month").add(-1, "month");
+        end = start.clone().add(1, "month");
+    } else if (periodoInicio == "semestre") {
+        start = start.startOf("month");
+        let m = start.month();
+        if (m <= 5) {
+            while (start.month() > 0) start = start.add(-1, "month");
+            end = start.clone().add(6, "month");
+        } else {
+            while (start.month() > 6) start = start.add(-1, "month");
+            end = start.clone().add(6, "month");
+        }
+    } else if (periodoInicio == "semestre-1") {
+        start = start.add(-6, "month").startOf("month");
+        let m = start.month();
+        if (m <= 5) {
+            while (start.month() > 0) start = start.add(-1, "month");
+            end = start.clone().add(6, "month");
+        } else {
+            while (start.month() > 6) start = start.add(-1, "month");
+            end = start.clone().add(6, "month");
+        }
+    } else if (periodoInicio == "ano") {
+        start = start.startOf("year");
+        end = start.clone().add(1, "year");
+    } else if (periodoInicio == "ano-1") {
+        start = start.startOf("year").add(-1, "year");
+        end = start.clone().add(1, "year");
+    } else if (periodoInicio == "3anos") {
+        start = start.startOf("year").add(-3, "year");
+        end = start.clone().add(3, "year");
+    } else if (periodoInicio == "5anos") {
+        start = start.startOf("year").add(-5, "year");
+        end = start.clone().add(5, "year");
+    } else if (periodoInicio == "10anos") {
+        start = start.startOf("year").add(-10, "year");
+        end = start.clone().add(10, "year");
+    }
+
+    return {start, end};
+}
+
 function mismoDia(start, end) {
     return start.format("YYYY-MM-DD") == end.format("YYYY-MM-DD");
 }
@@ -87,8 +165,18 @@ function describeSemestre(d) {
     return "Semestre inválido";
 }
 function describePeriodoParaBloqueTemporalidad(idxBbloque, start, end) {
+    console.log("describePeriodo para ", idxBbloque, start, end);
     if (idxBbloque <= 5) {
         // 5, 15, 30m, 1h, 6h, 12h
+        // Buscar si son días completos (no se muestran horas)
+        if (start.format("HH:mm") == "00:00" && end.format("HH:mm")) {
+            if (end.clone().add(-1, "day").date() == start.date()) {
+                // mismo día
+                return "El día " + start.format("DD/MM/YYYY");
+            } else {
+                return "[" + start.format("DD/MM/YYYY") + " - " + end.clone().subtract(1, "day").format("DD/MM/YYYY") + "]";
+            }
+        }
         if (mismoDia(start, end)) {
             return start.format("DD/MM/YYYY") + " [" + start.format("HH:mm") + " - " + end.format("HH:mm") + "[";
         } else {
@@ -399,4 +487,23 @@ class MinZQuery {
         } else throw "Format '" + args.format + "' not handled";
         return this.zRepoClient.query(q, this.startTime, this.endTime);
     }
+}
+
+/* Períodos para diferentes temporalidades */
+var _listaPeriodosPorTemporalidad;
+function getListaPeriodosPorTemporalidad() {
+    if (_listaPeriodosPorTemporalidad) return _listaPeriodosPorTemporalidad;
+    _listaPeriodosPorTemporalidad = Object.keys(periodosPorTemporalidad).map(code => {
+        let p = periodosPorTemporalidad[code];
+        p.code = code;
+        return p;
+    }).sort((p1, p2) => (p1.orden - p2.orden));
+    return _listaPeriodosPorTemporalidad;
+}
+
+function getPeriodosParaTemporalidad(temporalidad) {
+    return getListaPeriodosPorTemporalidad().filter(p => p.niveles.indexOf(temporalidad) >= 0);
+}
+function getPeriodoDefaultTemporalidad(temporalidad) {
+    return getPeriodosParaTemporalidad(temporalidad)[0];
 }

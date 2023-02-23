@@ -1,16 +1,3 @@
-const queryCharts = {
-    "empty":"zdashboards/EmptyChart",
-    "time-serie":"zdashboards/TimeSerie",
-    "pie":"zdashboards/Pie",
-    "dim-serie":"zdashboards/DimSerie",
-    "heatmap":"zdashboards/HeatMap",
-    "gauge":"zdashboards/Gauge",
-    "time-dim":"zdashboards/TimeDim",
-    "labels":"zdashboards/Labels",
-    "dim-dim-table":"zdashboards/DimDimTable",
-    "resume-table":"zdashboards/ResumeTable",
-}
-
 class CustomQuery extends ZCustomController {    
     get chart() {return this.chartLoader.content}
     get variable() {return this.edVariable.selectedRow}
@@ -18,25 +5,8 @@ class CustomQuery extends ZCustomController {
     async onThis_init() {
         //am4core.options.autoDispose = true;
         this.edVariable.setGroups(window.zrepo.variablesTree, "name", "variables");
-        this.edQuery.setRows([{
-            code:"time-serie", name:"Serie de Tiempo"
-        }, {
-            code:"pie", name:"Gráfico de Torta"
-        }, {
-            code:"dim-serie", name:"Barras por Dimensiones"
-        }, {
-            code:"heatmap", name:"Heat Map"
-        }, {
-            code:"dim-dim-table", name:"Tabla Dim/Dim"
-        }, {
-            code:"gauge", name:"Gauge"
-        }, {
-            code:"time-dim", name:"Serie Temporal Dimensiones"
-        }, {
-            code:"labels", name:"Resumen (Etiquetas)"
-        }, {
-            code:"resume-table", name:"Tabla Resumen Período"
-        }])        
+        let rows = ZDashboardElement.getCoomponentsList().map(c => ({code:c.type, name:c.name}));
+        this.edQuery.setRows(rows, "timeSerie");
         this.edAcumulador.setRows([{
             code:"value", name:"Suma en Período"
         }, {
@@ -47,12 +17,17 @@ class CustomQuery extends ZCustomController {
             code:"min", name:"Mínimo en el Período"
         }, {
             code:"max", name:"Máximo en el Período"
-        }])
+        }])        
         
         this.inicializaOpcionesQuery();
         this.cambioVariable();
         this.cambioTemporalidad();
         this.rebuildQuery();
+    }
+
+    get componentDefinition() {
+        let type = this.edQuery.value;
+        return ZDashboardElement.getComponent(type);
     }
 
     doResize(w, h) {        
@@ -155,19 +130,9 @@ class CustomQuery extends ZCustomController {
     }
 
     onCmdConfigurar_click() {
-        const w = {
-            "time-serie":"./chartProps/WTimeSerie",
-            "pie":"./chartProps/WPie",
-            "dim-serie":"./chartProps/WDimSerie",
-            "heatmap":"./chartProps/WHeatMap",
-            "gauge":"./chartProps/WGauge",
-            "time-serie":"./chartProps/WTimeSerie",
-            "time-dim":"./chartProps/WTimeDim",
-            "labels":"./chartProps/WLabels",
-            "dim-dim-table":"./chartProps/WDimDimTable",
-            "resume-table":"./chartProps/WResumeTable"
-        }
-        this.showDialog(w[this.edQuery.value], this.opcionesQuery, opciones => {
+        let w = this.componentDefinition.propsPath;
+        if (!w) return;
+        this.showDialog(w, this.opcionesQuery, opciones => {
             opciones.variable = this.variable;
             this.opcionesQuery = opciones;
             this.callRefreshChart();
@@ -184,9 +149,9 @@ class CustomQuery extends ZCustomController {
             this.refreshChart()
         }, 300);
     }
-    async refreshChart() {
+    async refreshChart() {        
         if (this.chart.code != this.edQuery.value) {
-            let panel = queryCharts[this.edQuery.value];
+            let panel = this.componentDefinition.elementPath;
             await this.chartLoader.load(panel);
             this.chartLoader.content.doResize();
         }
@@ -203,82 +168,12 @@ class CustomQuery extends ZCustomController {
 
     inicializaOpcionesQuery() {
         this.edAcumulador.show();
-        switch(this.edQuery.value) {
-            case "time-serie":
-                this.cmdConfigurarRow.show();
-                this.opcionesQuery = {serieType:"line", zoomTiempo:true};
-                break;
-            case "pie":
-                this.cmdConfigurarRow.show();
-                this.opcionesQuery = {
-                    ruta:null, 
-                    variable:this.minzQuery.variable,
-                    leyendas:"inline",
-                    tipoTorta:"dona-gradiente"
-                };
-                break;
-            case "dim-serie":
-                this.cmdConfigurarRow.show();
-                this.opcionesQuery = {
-                    ruta:null,
-                    serieType:"bars",
-                    variable:this.minzQuery.variable
-                };
-                break;
-            case "heatmap":
-                this.cmdConfigurarRow.show();
-                this.opcionesQuery = {
-                    rutaH:null, rutaV:null,
-                    variable:this.minzQuery.variable,
-                    indiceColor:0
-                };
-                break;
-            case "dim-dim-table":
-                this.cmdConfigurarRow.show();
-                this.opcionesQuery = {
-                    rutaH:null, rutaV:null,
-                    variable:this.minzQuery.variable
-                };
-                break;
-            case "gauge":
-                this.cmdConfigurarRow.show();
-                this.opcionesQuery = {
-                    min:0, max:100000,
-                    firstColor:"#0f9747",
-                    firstLabel:"Bajo",
-                    ranges:[{
-                        value:50000, color:"#ee1f25",
-                        label:"Alto"
-                    }]
-                };
-                break;
-            case "time-dim":
-                this.cmdConfigurarRow.show();
-                this.opcionesQuery = {
-                    zoomTiempo:true, 
-                    ruta:null,
-                    serieType:"bars",
-                    leyendas:"left",
-                    variable:this.minzQuery.variable
-                };
-                break;
-            case "labels":
-                this.cmdConfigurarRow.show();
-                this.edAcumulador.hide();
-                this.opcionesQuery = {layout:{c:{text:"${sum}"}}};
-                break;
-            case "resume-table":
-                this.cmdConfigurarRow.show();
-                this.edAcumulador.hide();
-                this.opcionesQuery = {
-                    variable:this.minzQuery.variable,
-                    showN: "N° Muestras",
-                    showSum: "Suma",
-                    showAvg: "Promedio",
-                    showMin: "", showMax: ""
-                };
-                break;
-        }
+        let cmpDef = this.componentDefinition;
+        if (cmpDef.propsPath) this.cmdConfigurarRow.show();
+        else this.cmdConfigurarRow.hide();
+        let c = {type:cmpDef.type};
+        if (cmpDef.factories && cmpDef.factories.init) cmpDef.factories.init(c);
+        this.opcionesQuery = c;
     }
 }
 ZVC.export(CustomQuery);

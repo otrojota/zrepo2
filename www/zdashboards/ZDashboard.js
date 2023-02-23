@@ -21,7 +21,8 @@ class ZDashboard extends ZCustomController {
         this.dashboard = dashboard;        
         this.designMode = designMode?true:false;
         this.indiceBloqueTemporalidad = nivelesTemporalidad.indexOf(this.dashboard.config.temporality);
-        let limites = getLimitesDefaultBloquesTemporalidad(this.indiceBloqueTemporalidad);
+        //let limites = getLimitesDefaultBloquesTemporalidad(this.indiceBloqueTemporalidad);
+        let limites = getLimitesDefaultPeriodoInicio(this.dashboard.config.temporality, this.dashboard.config.periodoInicio);
         this.start = limites.start;
         this.end = limites.end;
         this.refreshTitle();
