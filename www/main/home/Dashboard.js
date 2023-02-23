@@ -156,6 +156,22 @@ class Dashboard extends ZCustomController {
     }
 
     builComponentNode(component) {
+        let cmpDef = ZDashboardElement.getComponent(component.type);
+        if (!cmpDef) throw "No se encontr{o la definici{on del componente " + component.type;
+        let node = {
+            id:component.id, 
+            label:cmpDef.name, 
+            icon: cmpDef.icon,
+            items:false,
+            _type:component.type,
+            source:component
+        }
+        if (component.type == "dimFilter" || component.type == "dimRowSelector") {
+            node.label = "${" + component.paramName + "}";
+        }
+        return node;
+
+        /*
         if (component.type == "dimFilter") {
             return {
                 id:component.id, 
@@ -273,6 +289,7 @@ class Dashboard extends ZCustomController {
             _type:component.type,
             source:component
         }
+        */
     }
     buildLayoutTree(layout) {
         if (!layout) {
@@ -333,10 +350,13 @@ class Dashboard extends ZCustomController {
             await this.dsbLoader.load("./configs/DimensionFilterConfig", node.source);
         } else if (node._type == "dimRowSelector") {
             await this.dsbLoader.load("./configs/DimRowSelectorConfig", node.source);
-        } else if (".timeSerie.pie.dimSerie.dimTable.heatMap.gauge.dim-dim-table.timeDim.forceDirectedTree.resume-table.".indexOf(node._type) > 0) {
-            await this.dsbLoader.load("./configs/GenericElementConfig", node.source);
         } else {
-            console.error("Nodo ", node, " no manejado para propiedades");
+            let cmpDef = ZDashboardElement.getComponent(node._type);
+            if (!cmpDef) {
+                console.error("Nodo ", node, " no manejado para propiedades");
+            } else {
+                await this.dsbLoader.load("./configs/GenericElementConfig", node.source);
+            }
         }
     }
 

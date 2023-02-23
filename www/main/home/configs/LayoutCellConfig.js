@@ -4,68 +4,80 @@ class LayoutCellConfig extends ZCustomController {
         if (node.source.type != "row") {
             this.rowConfig.hide();
         }
-        this.refresh("row");
-        this.findAll(".form-check-input").forEach(e => {
-            e.onchange = _ => this.refresh(e.getAttribute("id"));
-        })
         let w = this.cellNode.source.widths[this.cellNode.cellIndex];
         this.edWidth.value = parseInt(w);
         let unit = ("" + w).endsWith("%")?"%":"p";
         this.edUnit.setRows([{code:"%", name:"Porcentaje"}, {code:"p", name:"Pixels"}], unit);
+        this.refresh();
     }
 
-    refresh(type) {
-        this.selectedType = type;
+    getCellContent() {
+        if (!this.cellNode.source.components) return null;
+        return this.cellNode.source.components.find(c => c.cellIndex == this.cellNode.cellIndex);
+    }
+    
+    refresh() {
+        let rows = ZDashboardElement.getCoomponentsList();        
+        rows.splice(0,0,{
+            type:"row", name:"Fila", icon:"fas fa-ellipsis"
+        }, {
+            type:"column", name:"Columna", icon:"fas fa-ellipsis-vertical"
+        });
+        let contenidoActual = this.getCellContent();
+        let html = rows.reduce((html, row) => {
+            let activo = (contenidoActual && contenidoActual.type == row.type);
+            html += `<a href="#" class="list-group-item list-group-item-action ${activo?' active':''}" data-type="${row.type}">
+                         <i class="${row.icon} me-2"></i>
+                         ${row.name}
+                     </a>
+            `;
+            return html;
+        }, "");
+        html = `<div class="list-group mb-3 mt-2">${html}</div>`;
+        this.contenidoCelda.html = html;
+        this.contenidoCelda.findAll(".list-group-item-action").forEach(a => {
+            a.onclick = async e => {
+                let type = a.getAttribute("data-type");
+                await this.setContent(type);
+            }
+        })
     }
 
     newId() {return "ID_" + parseInt(Math.random() * 999999999999);}
-    async onCmdAgregar_click() {
-        let c;
-        if (this.selectedType == "row" || this.selectedType == "column") {
-            c = {id:this.newId(), cellIndex:this.cellNode.cellIndex, type:this.selectedType, components:[], size:2, widths:["50%", "50%"]};
-        } else if (this.selectedType == "dimFilter") {
-            c = {id:this.newId(), cellIndex:this.cellNode.cellIndex, type:this.selectedType, dimension:null, paramName:"nombreDimension", emptyText:"Filtrar por XX", nonEmptyPrefix:"Elementos tales que"};
-        } else if (this.selectedType == "dimRowSelector") {
-            c = {id:this.newId(), cellIndex:this.cellNode.cellIndex, type:this.selectedType, height:50, dimension:null, paramName:"nombreDimension", emptyText:"Filtrar por XX", nonEmptyPrefix:"XX igual a"};
-        } else if (this.selectedType == "timeSerie") {
-            c = {id:this.newId(), cellIndex:this.cellNode.cellIndex, type:this.selectedType, height:300, serieType:"line", zoomTiempo:true, acumulador:"value", useQuery:true, useTemporality:true};
-        } else if (this.selectedType == "timeDim") {
-            c = {id:this.newId(), cellIndex:this.cellNode.cellIndex, type:this.selectedType, height:300, serieType:"bars", zoomTiempo:true, acumulador:"value", useQuery:true, useTemporality:true};
-        } else if (this.selectedType == "pie") {
-            c = {id:this.newId(), cellIndex:this.cellNode.cellIndex, type:this.selectedType, height:300, acumulador:"value", useQuery:true, useTemporality:false};
-        } else if (this.selectedType == "dimSerie") {
-            c = {id:this.newId(), cellIndex:this.cellNode.cellIndex, type:this.selectedType, height:300, acumulador:"value", useQuery:true, useTemporality:false};
-        } else if (this.selectedType == "dimTable") {
-            c = {id:this.newId(), cellIndex:this.cellNode.cellIndex, type:this.selectedType, height:300, acumulador:"value", useQuery:true, useTemporality:false};
-        } else if (this.selectedType == "heatMap") {
-            c = {id:this.newId(), cellIndex:this.cellNode.cellIndex, type:this.selectedType, height:300, acumulador:"value", indiceColor:1, useQuery:true, useTemporality:false};
-        } else if (this.selectedType == "dim-dim-table") {
-            c = {id:this.newId(), cellIndex:this.cellNode.cellIndex, type:this.selectedType, height:300, acumulador:"value", useQuery:true, useTemporality:false};
-        } else if (this.selectedType == "gauge") {
-            c = {id:this.newId(), cellIndex:this.cellNode.cellIndex, type:this.selectedType, height:200, acumulador:"value", min:0, max:100000, firstColor:"#0f9747", firstLabel:"Bajo", 
-                    ranges:[{
-                        value:50000, color:"#ee1f25",
-                        label:"Alto"
-                    }], 
-                    useQuery:true, useTemporality:false
-                };
-        } else if (this.selectedType == "forceDirectedTree") {
-            c = {id:this.newId(), cellIndex:this.cellNode.cellIndex, type:this.selectedType, height:300, acumulador:"value", useQuery:true, useTemporality:false};
-        } else if (this.selectedType == "dimSerie") {
-            c = {id:this.newId(), cellIndex:this.cellNode.cellIndex, type:this.selectedType, height:300, acumulador:"value", useQuery:true, useTemporality:false};
-        } else if (this.selectedType == "resume-table") {
-            c = {id:this.newId(), cellIndex:this.cellNode.cellIndex, type:this.selectedType, height:300, useQuery:true, useTemporality:false, showN:"Nª Muestras", showSum:"Suma", showAvg:"Promedio", showMin:"", showMax:""};
+
+    async setContent(type) {
+        let actual = this.getCellContent();
+        if (actual && actual.type == type) return;
+        if (actual) {
+            this.showDialog("common/WConfirm", {message:"¿Confirma que desea reemplazar el contenido actual de la celda?"}, async _ => await this.finishSetContent(type));
         } else {
-            console.error("Tipo de componente ", this.selectedType, " no manejado aun");
-        }
-        if (c) {
-            this.cellNode.source.components.push(c);
-            await this.triggerEvent("reloadParent", this.cellNode.id);
-            await this.triggerEvent("designChange");
-        } else {
-            console.error("No Implementado");
-        }
+            await this.finishSetContent(type);
+        }        
     }
+    async finishSetContent(type) {
+        let c = {id:this.newId, cellIndex:this.cellNode.cellIndex, type:type}
+        if (type == "row" || type == "column") {
+            c.components = [];
+            c.size = 2;
+            c.widths = ["50%", "50%"];
+        } else {
+            let cmpDef = ZDashboardElement.getComponent(type);
+            if (cmpDef && cmpDef.factories && cmpDef.factories.init) {
+                cmpDef.factories.init(c);
+            }
+        }
+        // Eliminar actual en la misma ubicación (si existe)
+        if (this.cellNode.source.components) {
+            let idx = this.cellNode.source.components.findIndex(c => c.cellIndex == this.cellNode.cellIndex);
+            if (idx >= 0) this.cellNode.source.components.splice(idx, 1);
+        }
+        // Agregar nuevo componente
+        this.cellNode.source.components.push(c);
+        await this.triggerEvent("reloadParent", this.cellNode.id);
+        await this.triggerEvent("designChange");
+        this.refresh();
+    }
+
     async onEdWidth_change() {await this.cambioAncho(); await this.triggerEvent("designChange");}
     async onEdUnit_change() {await this.cambioAncho(); await this.triggerEvent("designChange");}
     async cambioAncho() {

@@ -48,6 +48,9 @@ class GenericElementConfig extends ZCustomController {
         }  else {
             this.cmdFiltro.text = "Filtrar";
         }
+        this.cmpDef = ZDashboardElement.getComponent(this.component.type);
+        if (this.cmpDef.propsPath) this.cmpOptions.showConfigurar();
+        else this.cmpOptions.hideConfigurar();
     }
 
     validate() {
@@ -95,18 +98,7 @@ class GenericElementConfig extends ZCustomController {
 
     async onCmpOptions_eliminar() {await this.triggerEvent("eliminar")}
     async onCmpOptions_configurar() {
-        let w = {
-            "timeSerie":"zdashboards/chartProps/WTimeSerie",
-            "pie":"zdashboards/chartProps/WPie",
-            "dimSerie":"zdashboards/chartProps/WDimSerie",
-            "dimTable":"zdashboards/chartProps/WDimTable",
-            "heatMap":"zdashboards/chartProps/WHeatMap",
-            "gauge":"zdashboards/chartProps/WGauge",
-            "dim-dim-table":"zdashboards/chartProps/WDimDimTable",
-            "timeDim":"zdashboards/chartProps/WTimeDim",
-            "forceDirectedTree":"zdashboards/chartProps/WForceDirectedTree",
-            "resume-table":"zdashboards/chartProps/WResumeTable"
-        }[this.component.type];
+        let w = this.cmpDef.propsPath;
         if (!w) {
             this.showDialog("common/WError", {message:"Componente " + this.component.type + " no manejado"});
             return;

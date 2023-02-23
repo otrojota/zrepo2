@@ -138,4 +138,131 @@ class ZDashboardElement extends ZCustomController {
         }
     }
     
+    static registerComponent(type, name, elementPath, propsPath, factories, icon) {
+        if (!ZDashboardElement._components) ZDashboardElement._components = [];
+        let idx = ZDashboardElement._components.findIndex(c => c.code == type);
+        if (idx >= 0) throw "Componente " + type +" repetido!";
+        ZDashboardElement._components.push({type, name, elementPath, propsPath, factories, icon});        
+    }
+    static getComponent(type) {
+        if (!ZDashboardElement._components) ZDashboardElement._components = [];
+        return ZDashboardElement._components.find(c => c.type == type);
+    }
+    static getCoomponentsList() {
+        let list = ZDashboardElement._components.map(c => (c)).sort((c1, c2) => (c1.name > c2.name?1:-1));
+        return list;
+    }
 }
+
+// Registrar componentes base de ZDashboards
+ZDashboardElement.registerComponent("dimFilter", "Filtro Dimensión", "zdashboards/DimensionFilter", null, {
+    init: c => {
+        c.dimension = null;
+        c.paramName = "nombreDimension";
+        c.emptyText = "Filtrar por XX";
+        c.nonEmptyPrefix = "Elementos tales que";
+    }
+}, "fas fa-filter");
+ZDashboardElement.registerComponent("dimRowSelector", "Selector Fila Dimensión", "zdashboards/DimRowSelector", null, {
+    init: c => {
+        c.height = 50;
+        c.dimension = null;
+        c.paramName = "nombreDimension";
+        c.emptyText = "Filtrar por XX";
+        c.nonEmptyPrefix = "XX igual a";
+    }
+}, "fa-solid fa-filter-circle-xmark");
+ZDashboardElement.registerComponent("timeSerie", "Serie de Tiempo", "zdashboards/TimeSerie", "zdashboards/chartProps/WTimeSerie", {
+    init: c => {
+        c.height = 300;
+        c.serieType = "line";
+        c.zoomTiempo = true;
+        c.acumulador = "value";
+        c.useQuery = true;
+        c.useTemporality = true;
+    }
+}, "fas fa-chart-line");
+ZDashboardElement.registerComponent("pie", "Gráfico de Torta", "zdashboards/Pie", "zdashboards/chartProps/WPie", {
+    init: c => {
+        c.height = 300;
+        c.acumulador = "value";
+        c.useQuery = true;
+        c.useTemporality = false;
+    }
+}, "fas fa-chart-pie");
+ZDashboardElement.registerComponent("dimSerie", "Barras po Dimensiones", "zdashboards/DimSerie", "zdashboards/chartProps/WDimSerie", {
+    init: c => {
+        c.height = 300;
+        c.acumulador = "value";
+        c.useQuery = true;
+        c.useTemporality = false;
+    }
+}, "fas fa-chart-simple");
+ZDashboardElement.registerComponent("dimTable", "Tabla de Dimensiones", "zdashboards/DimTable", "zdashboards/chartProps/WDimTable", {
+    init: c => {
+        c.height = 300;
+        c.acumulador = "value";
+        c.useQuery = true;
+        c.useTemporality = false;
+    }
+}, "fas fa-table-list");
+ZDashboardElement.registerComponent("heatMap", "Heatmap", "zdashboards/HeatMap", "zdashboards/chartProps/WHeatMap", {
+    init: c => {
+        c.height = 300;
+        c.acumulador = "value";
+        c.indiceColor = 1;
+        c.useQuery = true;
+        c.useTemporality = false;
+    }
+}, "fas fa-table-cells");
+ZDashboardElement.registerComponent("dim-dim-table", "Tabla Dimensión-Dimensión", "zdashboards/DimDimTable", "zdashboards/chartProps/WDimDimTable", {
+    init: c => {
+        c.height = 300;
+        c.acumulador = "value";
+        c.useQuery = true;
+        c.useTemporality = false;
+    }
+}, "fas fa-table-cells");
+ZDashboardElement.registerComponent("gauge", "Gauge","zdashboards/Gauge", "zdashboards/chartProps/WGauge", {
+    init: c => {
+        c.height = 200;
+        c.acumulador = "value";
+        c.min = 0; c.max = 100000; c.firstColor = "#0f9747"; c.firstLabel = "Bajo"; 
+        c.ranges = [{
+            value:50000, color:"#ee1f25",
+            label:"Alto"
+        }];
+        c.useQuery = true;
+        c.useTemporality = false;
+    }
+}, "fas fa-gauge-high");
+ZDashboardElement.registerComponent("timeDim", "Serie Tiempo Dimensión", "zdashboards/TimeDim", "zdashboards/chartProps/WTimeDim", {
+    init: c => {
+        c.height = 300;
+        c.serieType = "bars";
+        c.zoomTiempo = true;
+        c.acumulador = "value";
+        c.useQuery = true;
+        c.useTemporality = true;
+    }
+}, "fas fa-timeline");
+ZDashboardElement.registerComponent("forceDirectedTree", "Árbol Direccional Dirigido", "zdashboards/ForceDirectedTree", "zdashboards/chartProps/WForceDirectedTree", {
+    init: c => {
+        c.height = 300;
+        c.acumulador = "value";
+        c.useQuery = true;
+        useTemporality = false;
+    }
+}, "fas fa-diagram-project");
+ZDashboardElement.registerComponent("resume-table", "Tabla Resumen Período", "zdashboards/ResumeTable", "zdashboards/chartProps/WResumeTable", {
+    init: c => {
+        c.height = 300;
+        c.useQuery = true;
+        c.useTemporality = false;
+        c.showN = "Nª Muestras";
+        c.showSum = "Suma";
+        c.showAvg = "Promedio";
+        c.showMin = "";
+        c.showMax = "";
+    }
+}, "fas fa-table-cells");

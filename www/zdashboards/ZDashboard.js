@@ -115,20 +115,8 @@ class ZDashboard extends ZCustomController {
                 if (cmp.type == "row" || cmp.type == "column") {
                     await this.createLayoutFrom(cmp, div);                
                 } else {
-                    const zvcElement = {
-                        "dimFilter":"zdashboards/DimensionFilter",
-                        "dimRowSelector":"zdashboards/DimRowSelector",
-                        "timeSerie":"zdashboards/TimeSerie",
-                        "pie":"zdashboards/Pie",
-                        "dimSerie":"zdashboards/DimSerie",
-                        "dimTable":"zdashboards/DimTable",
-                        "heatMap":"zdashboards/HeatMap",
-                        "dim-dim-table":"zdashboards/DimDimTable",
-                        "gauge":"zdashboards/Gauge",
-                        "timeDim":"zdashboards/TimeDim",
-                        "forceDirectedTree":"zdashboards/ForceDirectedTree",
-                        "resume-table":"zdashboards/ResumeTable",
-                    }[cmp.type];
+                    const zvcElementDefinition = ZDashboardElement.getComponent(cmp.type);
+                    const zvcElement = zvcElementDefinition?zvcElementDefinition.elementPath:null;
                     if (!zvcElement) {
                         console.error("Componente ", cmp.type, " no manejado aun");
                         return;
@@ -177,12 +165,6 @@ class ZDashboard extends ZCustomController {
         if (!this.dashboard) return;        
         let h = this.resizeFrom(this.dashboard.config.layout, this.layoutContainer.view);
         this.view.style.setProperty("height", h + "px");
-        /*
-        console.log("Altura de laout container", h);
-        let top = parseInt(this.layoutStart.view.getBoundingClientRect().top) + 10;
-        this.layoutContainer.view.style.top = top + "px";
-        */
-        //this.layoutContainer.view.style.height = h + "px";
     }
     resizeFrom(layout, container, top=0) {
         const margin = 5;
