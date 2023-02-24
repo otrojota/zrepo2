@@ -165,7 +165,6 @@ function describeSemestre(d) {
     return "Semestre inválido";
 }
 function describePeriodoParaBloqueTemporalidad(idxBbloque, start, end) {
-    console.log("describePeriodo para ", idxBbloque, start, end);
     if (idxBbloque <= 5) {
         // 5, 15, 30m, 1h, 6h, 12h
         // Buscar si son días completos (no se muestran horas)

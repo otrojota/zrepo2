@@ -55,7 +55,7 @@ class LayoutCellConfig extends ZCustomController {
         }        
     }
     async finishSetContent(type) {
-        let c = {id:this.newId, cellIndex:this.cellNode.cellIndex, type:type}
+        let c = {id:this.newId(), cellIndex:this.cellNode.cellIndex, type:type}
         if (type == "row" || type == "column") {
             c.components = [];
             c.size = 2;
