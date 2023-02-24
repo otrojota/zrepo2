@@ -110,6 +110,7 @@ class GenericElementConfig extends ZCustomController {
             this.triggerEvent("designChange");
         })
     }
+    onCmpOptions_mover() {this.triggerEvent("mover")}
 
     async getMinzQueryFiltros() {
         let v = await window.zRepoClient.variables.find(v => v.code == this.component.variable);

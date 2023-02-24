@@ -47,10 +47,6 @@ class HeatMap extends ZDashboardElement {
             filas = Object.keys(filas).map(key => (filas[key]));
             columnas = Object.keys(columnas).map(key => (columnas[key]));
 
-            console.log("data", data);
-            console.log("filas", filas);
-            console.log("columnas", columnas);
-            
             let nFilas = filas.length;
             let nColumnas = columnas.length;
 

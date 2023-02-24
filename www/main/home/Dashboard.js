@@ -292,6 +292,40 @@ class Dashboard extends ZCustomController {
             await this.recreateDashboard();
         });
     }
+    onDsbLoader_mover() {
+        this.showDialog("./WSeleccionaCelda", {
+            nodes: [{
+                id:"_layout_", label:"Dashboard", icon:"fas fa-tools", selectable:true, _isOpen:true, items:this.buildLayoutTree(this.edDashboard.config.layout), source:this.edDashboard
+            }]
+        }, celdaDestino => {
+            this.doMover(celdaDestino);
+        })
+    }    
+    async doMover(celdaDestino) {
+        let node = this.layout.selectedNode;
+        // Asegurar que la celdaDestino no sea descendiente del nodo que se mueve
+        let n = celdaDestino;
+        while(n && n.id != "_layout_") {
+            n = this.layout.findParentNode(n._calculatedId);
+            if (n.id == node.id) {
+                this.showDialog("common/WError", {message:"Celda destino es inválida (produce ciclos)"});
+                return;
+            }
+        }
+        // Buscar el nodo padre para removerlo
+        let oldParent = this.layout.findParentNode(node._calculatedId);
+        let idx = oldParent.source.components.findIndex(n => n.id == node.id);
+        oldParent.source.components.splice(idx, 1);
+        node.source.cellIndex = celdaDestino.cellIndex;
+        celdaDestino.source.components.push(node.source);
+        await this.layout.refresh();
+        let rootNode = this.layout.findNodeById("_layout_");
+        this.layout.selectedNode = rootNode;
+        this.onLayout_change(rootNode);
+        await this.layout.toggleNode(rootNode);
+        await this.layout.toggleNode(rootNode.items[0]);
+        await this.recreateDashboard();
+    }
 
     async recreateDashboard() {
         await this.dashboardElement.dispose();

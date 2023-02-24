@@ -1,16 +1,17 @@
 class TimeSerie extends ZDashboardElement {
     get code() {return "time-serie"}    
+    get exportable() {return true}
     getBaseTemporality() {
-        if (this.q.temporality == "5m") return {baseInterval:{"timeUnit": "minute","count": 5}, tooltipDateFormat:"dd/MMM/yyyy HH:mm"}
-        else if (this.q.temporality == "15m") return {baseInterval:{"timeUnit": "minute","count": 15}, tooltipDateFormat: "dd/MMM/yyyy HH:mm"}
-        else if (this.q.temporality == "30m") return {baseInterval:{"timeUnit": "minute","count": 30}, tooltipDateFormat: "dd/MMM/yyyy HH:mm"}
-        else if (this.q.temporality == "1h") return {baseInterval: {"timeUnit": "hour","count": 1}, tooltipDateFormat:"dd/MMM/yyyy HH:mm"}
-        else if (this.q.temporality == "1d") return {baseInterval: {"timeUnit": "day","count": 1}, tooltipDateFormat: "dd/MMM/yyyy"}
-        else if (this.q.temporality == "1M") return {baseInterval: {"timeUnit": "month","count": 1}, tooltipDateFormat: "MMM/yyyy"} 
-        else if (this.q.temporality == "3M") return {baseInterval: {"timeUnit": "month","count": 3}, tooltipDateFormat:"MMM/yyyy"}
-        else if (this.q.temporality == "4M") return {baseInterval: {"timeUnit": "month","count": 4}, tooltipDateFormat:"MMM/yyyy"}        
-        else if (this.q.temporality == "6M") return {baseInterval: {"timeUnit": "month","count": 12}, tooltipDateFormat:"MMM/yyyy"}
-        else if (this.q.temporality == "1y") return {baseInterval: {"timeUnit": "year","count": 1}, tooltipDateFormat:"yyyy"}
+        if (this.q.temporality == "5m") return {baseInterval:{"timeUnit": "minute","count": 5}, tooltipDateFormat:"dd/MMM/yyyy HH:mm", fmt:"DD/MM/YYYY HH:mm"}
+        else if (this.q.temporality == "15m") return {baseInterval:{"timeUnit": "minute","count": 15}, tooltipDateFormat: "dd/MMM/yyyy HH:mm", fmt:"DD/MM/YYYY HH:mm"}
+        else if (this.q.temporality == "30m") return {baseInterval:{"timeUnit": "minute","count": 30}, tooltipDateFormat: "dd/MMM/yyyy HH:mm", fmt:"DD/MM/YYYY HH:mm"}
+        else if (this.q.temporality == "1h") return {baseInterval: {"timeUnit": "hour","count": 1}, tooltipDateFormat:"dd/MMM/yyyy HH:mm", fmt:"DD/MM/YYYY HH:mm"}
+        else if (this.q.temporality == "1d") return {baseInterval: {"timeUnit": "day","count": 1}, tooltipDateFormat: "dd/MMM/yyyy", fmt:"DD/MM/YYYY"}
+        else if (this.q.temporality == "1M") return {baseInterval: {"timeUnit": "month","count": 1}, tooltipDateFormat: "MMM/yyyy", fmt:"MM/YYYY"} 
+        else if (this.q.temporality == "3M") return {baseInterval: {"timeUnit": "month","count": 3}, tooltipDateFormat:"MMM/yyyy", fmt:"MM/YYYY"}
+        else if (this.q.temporality == "4M") return {baseInterval: {"timeUnit": "month","count": 4}, tooltipDateFormat:"MMM/yyyy", fmt:"MM/YYYY"}        
+        else if (this.q.temporality == "6M") return {baseInterval: {"timeUnit": "month","count": 12}, tooltipDateFormat:"MMM/yyyy", fmt:"MM/YYYY"}
+        else if (this.q.temporality == "1y") return {baseInterval: {"timeUnit": "year","count": 1}, tooltipDateFormat:"yyyy", fmt:"YYYY"}
     }
 
     async initElement() {
@@ -82,6 +83,9 @@ class TimeSerie extends ZDashboardElement {
                 }
                 data = newData;
             }
+            // Guardar para exportar
+            this.data = data;
+
             this.root.setThemes([am5themes_Animated.new(this.root), am5themes_Dark.new(this.root)])
             let chart = this.root.container.children.push(am5xy.XYChart.new(this.root, {panX: true, panY: true, wheelX: "panX", wheelY: "zoomX", layout: this.root.verticalLayout}));
             chart.set("cursor", am5xy.XYCursor.new(this.root, {behavior: "none"}));        
@@ -324,6 +328,40 @@ class TimeSerie extends ZDashboardElement {
 
     doResize() {
         super.doResize();
+    }
+
+    export() {        
+        let unit, unit2;
+        if (this.q.accum == "n") unit = "N°";
+        else unit = this.q.variable.options?this.q.variable.options.unit:"S/U"; 
+        if (this.q2.accum == "n") unit2 = "N°";
+        else unit2 = this.q2.variable.options?this.q2.variable.options.unit:"S/U"; 
+        let nDec = this.q.variable.options?this.q.variable.options.decimals:2;
+        let nDec2 = this.q2.variable.options?this.q2.variable.options.decimals:2;
+        let periodo = describePeriodoParaBloqueTemporalidad(this.dashboard.indiceBloqueTemporalidad, this.dashboard.start, this.dashboard.end);
+        let titulo = this.options && this.options.titulo?this.options.titulo:"Exportación de Datos";
+        // https://docs.sheetjs.com/docs/getting-started/example
+
+        let serie1 = this.options.nombreSerie?(this.options.nombreSerie + " [" + unit + "]"):unit;
+        let serie2;
+        if (unit2) serie2 = this.options.nombreSerie2?(this.options.nombreSerie2 + " [" + unit2 + "]"):unit2;
+        let subtituloRow = ["Inicio", serie1];
+        if (serie2) subtituloRow.push(serie2);
+        let rows = [[titulo], [periodo], subtituloRow];
+        let tempo = this.getBaseTemporality();
+        for (let r of this.data) {
+            let row = [];
+            let d = moment.tz(r.time, window.timeZone);
+            row.push(d.format(tempo.fmt));
+            row.push(r.value);
+            if (serie2) row.push(r.value2);
+            rows.push(row);
+        }
+
+        const worksheet = XLSX.utils.aoa_to_sheet(rows);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Export");
+        XLSX.writeFile(workbook, "export.xlsx", { compression: true });
     }
 }
 ZVC.export(TimeSerie);

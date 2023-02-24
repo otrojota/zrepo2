@@ -758,8 +758,8 @@ class Variables {
                             parentRow.min = r.min < parentRow.min?r.min:parentRow.min;
                             parentRow.max = r.max > parentRow.max?r.max:parentRow.max;
                             parentRow.value += r.value;
-                            parentRow.n = +r.n;
-                            parentRow.sum2 = +r.sum2;
+                            parentRow.n += r.n;
+                            parentRow.sum2 += r.sum2;
                         }                        
                     }
                     parentRow.children = child;

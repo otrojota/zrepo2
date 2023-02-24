@@ -174,6 +174,7 @@ class CustomQuery extends ZCustomController {
         let c = {type:cmpDef.type};
         if (cmpDef.factories && cmpDef.factories.init) cmpDef.factories.init(c);
         this.opcionesQuery = c;
+        c.variable = this.variable;
     }
 }
 ZVC.export(CustomQuery);

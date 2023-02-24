@@ -1,0 +1,6 @@
+* Datos de dimensiones originales para filas y columnas (con filtro), no sólo desde resultados.
+    - DimDim Table
+    - Dim Table
+* Exportar dashboard a PDF o imagen
+* Visualizadores desde plugins
+* Visualizador Tiempo / Dimension

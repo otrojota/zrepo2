@@ -84,5 +84,6 @@ class DimensionFilterConfig extends ZCustomController {
     }
 
     async onCmpOptions_eliminar() {await this.triggerEvent("eliminar")}
+    onCmpOptions_mover() {this.triggerEvent("mover")}
 }
 ZVC.export(DimensionFilterConfig);

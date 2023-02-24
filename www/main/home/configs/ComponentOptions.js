@@ -11,5 +11,8 @@ class ComponentOptions extends ZCustomController {
     async onCmdConfigurar_click() {
         await this.triggerEvent("configurar");
     }
+    async onCmdMover_click() {
+        await this.triggerEvent("mover");
+    }
 }
 ZVC.export(ComponentOptions);
