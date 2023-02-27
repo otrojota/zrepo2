@@ -22,7 +22,6 @@ class Hours extends ZCustomController {
         this.edEndDate.value = this.onlyDate(end);
         let bloquesEnd = rowsFin[options.temporality].map((r, idx) => ({code:idx, name:r}));
         this.edEndHour.value = end.hours();
-        console.log("end", end.format("DD/MM/YYYY HH:mm"), this.getFilaMinutos(end))
         this.edEndMinute.setRows(bloquesEnd, this.getFilaMinutos(end))
         this.valida();
     }

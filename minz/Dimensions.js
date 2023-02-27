@@ -208,8 +208,10 @@ class Dimensions {
         Object.keys(filter).forEach(filterFieldName => {
             let v = filter[filterFieldName];
             if (v === null || typeof v == "string" || typeof v == "number") {
+                if (!filterFieldName.length) filterFieldName = "_id";
                 matchObject[filterFieldName] = v;
             } else if (Array.isArray(v)) {
+                if (!filterFieldName.length) filterFieldName = "_id";
                 matchObject[filterFieldName] = {$in:v};
             } else if (typeof v == "object") {
                 // {comuna:{provincia:{region:"05"}, tipoComuna:"rural"}}
@@ -280,6 +282,7 @@ class Dimensions {
         return n;
     }
     async getRows(dimensionCode, textFilter, filter, startRow, nRows) {
+        console.log("filter", filter);
         if (nRows == 0) return [];
         let pipe = this.getRowsFilterPipeline(dimensionCode, textFilter, filter);
         pipe.push({$sort:{order:1}});
@@ -293,6 +296,7 @@ class Dimensions {
             rows.push(await cursor.next());
         }
         await cursor.close();
+        console.log("rows", dimensionCode, rows.length);
         return rows;
     }
     async moveUp(dimensionCode, textFilter, filter, rowCode) {

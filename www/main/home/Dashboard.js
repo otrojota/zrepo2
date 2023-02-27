@@ -42,7 +42,7 @@ class Dashboard extends ZCustomController {
                 menu = `
                     <h6 class="dropdown-header">Opciones</h6>
                     <a id="diseno" href="#" class="dropdown-item"><i class="fas fa-gear me-2"></i>Entrar a Modo Diseño</a>
-                    <li><hr class="dropdown-divider"></li>
+                    <li><hr class="dropdown-divider"></li>                    
                     <a id="exportar" href="#" class="dropdown-item"><i class="fas fa-download me-2"></i>Exportar este Dashboard</a>
                     <a id="copiarId" href="#" class="dropdown-item"><i class="fas fa-copy me-2"></i>Copiar Identificador</a>
                     <a id="eliminar" href="#" class="dropdown-item"><i class="fas fa-trash me-2"></i>Eliminar este Dashboard</a>

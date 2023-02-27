@@ -24,7 +24,6 @@ class WPeriod extends ZDialog {
                 await this.periodLoader.load("./Years", options);
                 break;
         }
-        console.log("options", options);
     }
 
     onPeriodLoader_valida(ok) {

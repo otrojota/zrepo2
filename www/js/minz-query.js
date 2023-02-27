@@ -269,6 +269,23 @@ class MinZQuery {
         return this.fixedFilters.map(f => ({filtro:f, fixed:true})).concat(this.filters.map(f => ({filtro:f, fixed:false})));
     }
 
+    async getDimensionDeRuta(ruta) {
+        try {
+            let varOrDim = this.variable;
+            let elements = ruta.split(".");
+            for (let i=0; i<elements.length; i++) {
+                let e = elements[i];
+                let classifier = varOrDim.classifiers.find(c => c.fieldName == e);
+                if (!classifier) throw "No se encontró la ruta '" + ruta + "' desde" + varOrDim.name;
+                varOrDim = await this.zRepoClient.getDimension(classifier.dimensionCode);
+                if (!varOrDim) throw "No se encontró la definición de la dimensión '" + classifier.dimensionCode + "'";
+            }   
+            return varOrDim;
+        } catch (error) {
+            console.error(error);
+            throw(error);
+        }
+    }
     async describeFiltro(filtro) {        
         try {
             if (filtro.ruta.length == 0) {

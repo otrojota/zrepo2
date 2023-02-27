@@ -1,5 +1,6 @@
 class WTimeSerie extends ZDialog {
     async onThis_init(options) {
+        console.log("dsb", options.dashboard);
         this.options = options;
         let seriesTypes = [{
             code:"line", name:"Gráfico de Líneas"

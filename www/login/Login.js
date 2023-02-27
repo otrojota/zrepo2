@@ -20,7 +20,7 @@ class Login extends ZCustomController {
             }
             window.sesion=sesion;
             window.zSecurityToken = sesion.token;
-            console.log("Usando sesion", sesion);
+            //console.log("Usando sesion", sesion);
             this.triggerEvent("login", sesion);
         }, error => {
             $(this.find("#noWait")).show();

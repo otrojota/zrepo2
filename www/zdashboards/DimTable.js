@@ -16,8 +16,36 @@ class DimTable extends ZDashboardElement {
                 format:"dim-serie", startTime:start.valueOf(), endTime:end.valueOf()
             });
             let canDrillDown = this.q.groupingDimension.indexOf(".") > 0;
-            let data = await promise;
-            data = data.sort((d1, d2) => (d1.dim.order - d2.dim.order));            
+            let data = await promise;            
+
+            // Si el dimData es "soure" se usan los datos originales de la dimension por la que se agrupa
+            if (this.options.dimData == "source") {
+                // obtener dimension
+                let dimension = await this.q.getDimensionDeRuta(this.options.ruta);
+                let dimQuery = new MinZQuery(window.zRepoClient, dimension, null, null, null);    
+                dimQuery.filters = this.prepareFilters(this.options.dimFilter);          
+                let rows = await dimQuery.query({format:"dim-rows"});
+                // agregar campo "dim"
+                for (let row of rows) {
+                    row.dim = {code: row.code, name: row.name};
+                }
+                // crear mapa para acelerar mapeao
+                let map = rows.reduce((map, row) => {
+                    map[row.code] = row;
+                    return map;
+                }, {});
+                for (let row of data) {
+                    let r = map[row.dim.code];
+                    if (r) {
+                        r.resultado = row.resultado;
+                    }
+                }
+                data = rows;
+            } else {
+                data = data.sort((d1, d2) => (d1.dim.order - d2.dim.order));
+            }
+
+            
             let unit;
             if (this.q.accum == "n") unit = "N°";
             else unit = this.q.variable.options?this.q.variable.options.unit:"S/U";
@@ -35,7 +63,11 @@ class DimTable extends ZDashboardElement {
             for (let row of data) {
                 html += `<tr>`;
                 html += `   <td>${row.dim.name}</td>`;
-                html += `   <td class="text-end">${(row.resultado || 0).toLocaleString()}</td>`;
+                let stVal = this.options.zeroFill?"0":"";
+                if (row.resultado !== undefined) {
+                    stVal = (row.resultado || 0).toLocaleString();
+                }
+                html += `   <td class="text-end">${stVal}</td>`;
                 html += `</tr>`;
             }
             html += `
