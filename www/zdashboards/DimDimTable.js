@@ -37,6 +37,7 @@ class DimDimTable extends ZDashboardElement {
                 valor:d.resultado
             }));
 
+            /*
             data = data.sort((d1, d2) => {
                 if (d1.hOrder > d2.hOrder) return 1;
                 else if (d1.hOrder < d2.hOrder) return -1;
@@ -44,19 +45,35 @@ class DimDimTable extends ZDashboardElement {
                 else if (d1.vOrder < d2.vOrder) return -1;
                 else return 0;
             });
+            */
 
             //console.log("data", data, canDrillDownH, canDrillDownV);
 
             // Contar filas y columnas para calcular tamaño mínimo
             let filas = {}, columnas = {}, valores = {}, originalData = {};
             data.forEach(row => {
-                filas[row.vCode] = {code:row.vCode, name:row.vName};
-                columnas[row.hCode] = {code:row.hCode, name:row.hName};
+                filas[row.vCode] = {code:row.vCode, name:row.vName, order:row.vOrder};
+                columnas[row.hCode] = {code:row.hCode, name:row.hName, order:row.hOrder};
                 valores[row.vCode + "-" + row.hCode] = row.valor;
                 originalData[row.vCode + "-" + row.hCode] = row;
             })
-            filas = Object.keys(filas).map(key => (filas[key]));
-            columnas = Object.keys(columnas).map(key => (columnas[key]));
+            if (this.options.dimDataV != "source") {
+                filas = Object.keys(filas).map(key => (filas[key])).sort((f1, f2) => (f1.order - f2.order));
+            } else {
+                let dimension = await this.q.getDimensionDeRuta(this.options.rutaV);
+                let dimQuery = new MinZQuery(window.zRepoClient, dimension, null, null, null);    
+                dimQuery.filters = this.prepareFilters(this.options.dimFilterV || []);          
+                filas = await dimQuery.query({format:"dim-rows"});
+            }
+
+            if (this.options.dimDataH != "source") {
+                columnas = Object.keys(columnas).map(key => (columnas[key])).sort((c1, c2) => (c1.order - c2.order));
+            } else {
+                let dimension = await this.q.getDimensionDeRuta(this.options.rutaH);
+                let dimQuery = new MinZQuery(window.zRepoClient, dimension, null, null, null); 
+                dimQuery.filters = this.prepareFilters(this.options.dimFilterH || []);          
+                columnas = await dimQuery.query({format:"dim-rows"});
+            }
 
             let nDec = this.q.variable.options?this.q.variable.options.decimals:2;
             if (isNaN(nDec)) nDec = 2;
