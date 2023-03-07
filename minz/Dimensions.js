@@ -282,7 +282,6 @@ class Dimensions {
         return n;
     }
     async getRows(dimensionCode, textFilter, filter, startRow, nRows) {
-        console.log("filter", filter);
         if (nRows == 0) return [];
         let pipe = this.getRowsFilterPipeline(dimensionCode, textFilter, filter);
         pipe.push({$sort:{order:1}});
@@ -296,7 +295,6 @@ class Dimensions {
             rows.push(await cursor.next());
         }
         await cursor.close();
-        console.log("rows", dimensionCode, rows.length);
         return rows;
     }
     async moveUp(dimensionCode, textFilter, filter, rowCode) {
