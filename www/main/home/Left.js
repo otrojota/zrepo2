@@ -43,8 +43,6 @@ class Left extends ZCustomController {
                         reject(error);
                     }                    
                 });
-            } else if (parentNode._type == "shared") {
-                return zPost("getVisibleDashboardsInGroup.fs", {parentFolderId:parentNode.id});
             }
         } catch(error) {
             this.showDialog("common/WError", {message:error.toString()});

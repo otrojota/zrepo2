@@ -6,6 +6,7 @@ class Dashboard extends ZCustomController {
             this.mensaje.show();
             this.mensaje.html = '<i class="fas fa-spin fa-spinner fa-2x"></i>';
             this.dashboard = await zPost("getDashboard.fs", {id:dashboard.id});
+            if (dashboard.editable) this.dashboard.editable = true;
             //setTimeout(_ => this.setModoDiseno(), 200);            
             this.mensaje.html = "";            
             this.mensaje.hide();
@@ -30,17 +31,20 @@ class Dashboard extends ZCustomController {
 
     getContextMenu() {
         if (!this.dashboard) return null;
-        if (window.sesion.user.email == this.dashboard.owner) {
+        if (window.sesion.user.email == this.dashboard.owner || this.dashboard.editable) {
             let menu;
             if (this.modoDiseno) {
                 menu = `
-                    <h6 class="dropdown-header">Modo Diseño</h6>
+                    <h5 class="dropdown-header">Modo Diseño</h5>
                     <a id="cancelaDiseno" href="#" class="dropdown-item"><i class="fas fa-ban me-2"></i>Cancelar Cambios</a>
                     <a id="grabaDiseno" href="#" class="dropdown-item"><i class="fas fa-save me-2"></i>Grabar Cambios</a>
                 `;
             } else {
                 menu = `
-                    <h6 class="dropdown-header">Opciones</h6>
+                    <h5 class="dropdown-header">Creador / Editor</h5>
+                    <h6 class="dropdown-header">${this.dashboard.owner + ((this.dashboard.editor && this.dashboard.editor != this.dashboard.owner)?" / " + this.dashboard.editor:"")}</h6>
+                    <li><hr class="dropdown-divider"></li>
+
                     <a id="diseno" href="#" class="dropdown-item"><i class="fas fa-gear me-2"></i>Entrar a Modo Diseño</a>
                     <li><hr class="dropdown-divider"></li>                    
                     <a id="exportar" href="#" class="dropdown-item"><i class="fas fa-download me-2"></i>Exportar este Dashboard</a>
@@ -57,7 +61,7 @@ class Dashboard extends ZCustomController {
             } else {
                 menu += `
                     <li><hr class="dropdown-divider"></li>
-                    <h6 class="dropdown-header">Compartido en ${this.dashboard.sharedInName}</h6>
+                    <h5 class="dropdown-header">Compartido en ${this.dashboard.sharedInName}</h5>
                     <a id="compartirOtroGrupo" href="#" class="dropdown-item"><i class="fas fa-share-nodes me-2"></i>Compartir en otro Grupo</a>
                     <a id="dejarCompartir" href="#" class="dropdown-item"><i class="fas fa-ban me-2"></i>Dejar de Compartir</a>
                 `;
@@ -134,7 +138,7 @@ class Dashboard extends ZCustomController {
             this.dashboard.name = this.edDashboard.name;
             this.dashboard.icon = this.edDashboard.icon;
             this.dashboard.config = JSON.parse(JSON.stringify(this.edDashboard.config));
-            await zPost("saveDashboard.fs", {dashboard:this.dashboard});
+            this.dashboard = await zPost("saveDashboard.fs", {dashboard:this.dashboard});
             this.mensaje.hide();
             this.designHeader.hide();
             this.modoDiseno = false;
