@@ -36,7 +36,7 @@ class ProcFolder extends ZCustomController {
         try {
             this.procs = await zPost("getProcessesInGroup.zrepo", {groupId:this.grupo.id});
             this.edProceso.setRows(
-                [{id:"_all_", name:"[Todos los Procesos]"}].concat(this.procs)
+                [{id:"_all_", name:"[Todos los Procesos]"}].concat(this.procs), "_all_"
             );
             this.buscaEjecuciones();
         } catch (error) {
@@ -88,8 +88,17 @@ class ProcFolder extends ZCustomController {
         })
     }
 
-    invocaManual(trigger) {
+    async invocaManual(trigger) {
         let proceso = this.edProceso.selectedRow;
+        console.log("invocaManual", proceso);
+        try {
+            let metadata = await zPost("getProcessMetadata.zrepo", {pluginCode:proceso.plugin, processCode:proceso.code});
+            console.log("metadata", metadata);   
+            proceso.params = metadata.params;             
+        } catch (error) {
+            console.error(error);
+        }
+
         this.showDialog("./WEjecutaManual", {proceso, trigger}, pi => {
             this.buscaEjecuciones(pi);
         });
@@ -142,8 +151,8 @@ class ProcFolder extends ZCustomController {
             let withErrors = st == "err";
             let withErrorsOrWarnings = st == "warn";
             let rows = await zPost("findExecutions.zrepo", {
-                processes:this.procs.map(p => (p.pluginCode + "." + p.code)),
-                pluginCode:proc.id == "_all_"?null:proc.pluginCode,
+                processes:this.procs.map(p => (p.plugin + "." + p.code)),
+                pluginCode:proc.id == "_all_"?null:proc.plugin,
                 processCode:proc.id == "_all_"?null:proc.code,
                 start:this.start.valueOf(),
                 end:this.end.valueOf(),

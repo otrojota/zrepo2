@@ -47,7 +47,7 @@ class WEjecutarManual extends ZDialog {
             for (let p of this.paramsRows) {
                 this.paramValues[p.code] = p.value;
             }
-            let instanceId = await zPost("startProcess.zrepo", {plugin:this.proceso.pluginCode, process:this.proceso.code, params:this.paramValues, name:this.trigger.name, trigger:this.trigger});
+            let instanceId = await zPost("startProcess.zrepo", {plugin:this.proceso.plugin, process:this.proceso.code, params:this.paramValues, name:this.trigger.name, trigger:this.trigger});
             this.close(instanceId);
         } catch(error) {
             console.error(error);
