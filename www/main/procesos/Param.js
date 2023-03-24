@@ -8,19 +8,22 @@ class Param extends ZCustomController {
         this.edDia.hide();
         this.lbl.text = param.name;
         if (param.type == "int" || param.type == "number") {
+            if (param.default !== undefined) this.edNumber.value = param.default;
             this.edNumber.show();
             this.onEdNumber_change();
         } else if (param.type == "string") {
             if (param.textArea) {
+                if (param.default !== undefined) this.edTextArea.value = param.default;
                 this.edTextArea.show();
                 this.onEdTextArea_change();
             } else {
+                if (param.default !== undefined) this.edText.value = param.default;
                 this.edText.show();
                 this.onEdText_change();
             }
         } else if (param.type == "list") {
             this.selectContainer.show();
-            this.edSelect.setRows(param.values);
+            this.edSelect.setRows(param.values, param.default);
             this.onEdSelect_change();
         } else if (param.type == "date") {
             this.edDia.show();
