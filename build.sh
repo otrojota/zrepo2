@@ -1,4 +1,4 @@
-VERSION=0.28
+VERSION=0.29
 docker buildx build --push --platform linux/amd64,linux/arm64 -t docker.homejota.net/geoos/zrepo2:$VERSION -t docker.homejota.net/geoos/zrepo2:latest .
 
 #docker push docker.homejota.net/geoos/zrepo2:$VERSION
