@@ -130,25 +130,54 @@ class TimeDim extends ZDashboardElement {
                 }
             }
 
+            console.log("options", this.options);
             Object.keys(categorias).forEach(codigo => {
-                let series = chart.series.push(am5xy.ColumnSeries.new(this.root, {
-                    name:categorias[codigo], xAxis: dateAxis, yAxis: valueAxis,
-                    valueYField: codigo, valueXField: "time"
-                }));
-                series.columns.template.setAll({
-                    tooltipText: "[bold]{name}[/]\n{valueX.formatDate()}: {valueY} [[" + unit + "]]",
-                    width: am5.percent(90),
-                    tooltipY: 0
-                });
+                let series;
+                if (this.options.serieType == "columns") {
+                    series = chart.series.push(am5xy.ColumnSeries.new(this.root, {
+                        name:categorias[codigo], xAxis: dateAxis, yAxis: valueAxis,
+                        valueYField: codigo, valueXField: "time"
+                    }));
+                    series.columns.template.setAll({
+                        tooltipText: "[bold]{name}[/]\n{valueX.formatDate()}: {valueY} [[" + unit + "]]",
+                        width: am5.percent(90),
+                        tooltipY: 0
+                    });
+
+                    if (canDrillDown) {
+                        series.columns.template.set("cursorOverStyle", "crosshair");
+                        series.columns.template.events.on("click", e => {
+                            setTimeout(_ => this.drilldownTime(e.target.dataItem.dataContext.time), 50);
+                        })
+                    }
+                } else if (this.options.serieType == "line") {
+                    series = chart.series.push(am5xy.LineSeries.new(this.root, {
+                        name:categorias[codigo], xAxis: dateAxis, yAxis: valueAxis,
+                        valueYField: codigo, valueXField: "time",
+                        tooltip: am5.Tooltip.new(this.root, {
+                            labelText: "[bold]{name}[/]\n{valueX.formatDate()}: {valueY} [[" + unit + "]]"
+                        })
+                    }));
+                    series.bullets.push(_ => {
+                        let sprite = am5.Rectangle.new(this.root, {
+                            width:6, height:6, 
+                            centerX: am5.p50, centerY: am5.p50,
+                            fill: series.get("fill")
+                        });
+                        if (canDrillDown) {
+                            sprite.set("cursorOverStyle", "crosshair");
+                            sprite.events.on("click", e => {
+                                setTimeout(_ => this.drilldownTime(e.target.dataItem.dataContext.time), 50);
+                            })
+                        }
+                        let b = am5.Bullet.new(this.root, {
+                            sprite
+                        });
+                        return b;
+                    }); 
+                }
                 series.data.setAll(data);
                 if (legend) legend.data.push(series);
-
-                if (canDrillDown) {
-                    series.columns.template.set("cursorOverStyle", "crosshair");
-                    series.columns.template.events.on("click", e => {
-                        setTimeout(_ => this.drilldownTime(e.target.dataItem.dataContext.time), 50);
-                    })
-                }
             });
 
             if (this.options.zoomTiempo) {
@@ -314,6 +343,8 @@ class TimeDim extends ZDashboardElement {
         this.refresh(e.start, e.end, "pop");
     }
 
-    doResize() {}
+    doResize() {
+        super.doResize();
+    }
 }
 ZVC.export(TimeDim);
