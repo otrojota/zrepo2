@@ -141,7 +141,9 @@ class DimTable extends ZDashboardElement {
     getTotal(accum, totales) {
         switch(accum) {
             case "n":   return totales.n;
-            case "sum": return totales.sum.toLocaleString();
+            case "sum":
+            case "value":
+                 return totales.sum.toLocaleString();
             case "min": return (totales.min !== undefined?totales.min.toLocaleString():"");
             case "max": return (totales.max !== undefined?totales.max.toLocaleString():"")
             case "avg": return (totales.n !== undefined && totales.n > 0?(totales.sum / totales.n).toLocaleString():"");
