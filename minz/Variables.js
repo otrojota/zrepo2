@@ -957,6 +957,90 @@ class Variables {
         await cursor.close();
         return rows;
     }  
+
+    getMultiDimTablePipeline(varCode, startTime, endTime, groupDimensions, filter) {
+        let v = this.variables[varCode];
+        if (!v) throw("Variable '" + varCode + "' not found");
+
+        let pipe = [];
+        // Filter by time
+        pipe.push({
+            $match:{time:{$gte:startTime, $lt:endTime}}
+        });
+        // Filter by dimensions
+        if (filter) {
+            pipe = pipe.concat(this.getDimensionPipeFilter(filter));
+        }
+        // For each grouping dimension
+        let dimFields = [];
+        for (let gd of groupDimensions) {
+            let pathElements = gd.split(".");
+            // Add "_idx" to all elements except last
+            let dimField = "";
+            pathElements.forEach((e, i) => {
+                dimField += (dimField.length?".":"") + e;
+                if (i < (pathElements.length - 1)) dimField += "_idx";
+            });
+            dimFields.push(dimField);
+        }        
+        // Project group dims
+        let projectDoc = {value:1, n:1, min:1, max:1, sum2:1}
+        let groupIdDoc = {};
+        for (let i=0; i<dimFields.length; i++) {
+            let dimField = dimFields[i];
+            projectDoc["dim_" + (i+1)] = "$" + dimField
+            groupIdDoc["dim_" + (i+1)] = "$dim_" + (i+1);
+        }
+        pipe.push({$project:projectDoc});
+        // Apply groupping        
+        pipe.push({
+            $group:{
+                _id:groupIdDoc,
+                value:{$sum:"$value"},
+                n:{$sum:"$n"},
+                min:{$min:"$min"},
+                max:{$max:"$max"},
+                sum2:{$sum:"$sum2"}
+            }
+        });
+        // Lookup dimensions
+        for (let i=0; i<dimFields.length; i++) {
+            let dim = this.getFinalDimensionFromPath(varCode, groupDimensions[i]);
+            pipe.push({
+                $lookup:{
+                    from:dim.code,
+                    as:"dim_" + (i+1),
+                    localField:"_id.dim_" + (i+1),
+                    foreignField:"_id"
+                }
+            });
+            pipe.push({$unwind:"$dim_" + (i+1)});
+        }
+
+        let finalProjectDoc = {
+            _id:0,
+            value:1, n:1, min:1, max:1, sum2:1
+        }
+        for (let i=0; i<dimFields.length; i++) {
+            finalProjectDoc["dim_" + (i+1) + ".code"] = 1;
+            finalProjectDoc["dim_" + (i+1) + ".name"] = 1;
+            finalProjectDoc["dim_" + (i+1) + ".order"] = 1;
+        }
+        pipe.push({$project:finalProjectDoc})
+        return pipe;
+    }
+    async getMultiDimTable(varCode, startTime, endTime, groupDimensions, filter) {
+        let varCollection = await mongo.collection(varCode);
+        let pipe = this.getMultiDimTablePipeline(varCode, startTime, endTime, groupDimensions, filter);
+        let cursor = await varCollection.aggregate(pipe);
+        let rows = [];
+        while (await cursor.hasNext()) {
+            var doc = await cursor.next();
+            rows.push(doc);
+        }
+        await cursor.close();
+        return rows;
+    }  
 }
 
 module.exports = Variables.instance;

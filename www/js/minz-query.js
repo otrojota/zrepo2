@@ -234,17 +234,18 @@ class MinZQuery {
         if (filters) filters = JSON.parse(JSON.stringify(filters));
         let fixedFilters = q.fixedFilters;
         if (fixedFilters) fixedFilters = JSON.parse(JSON.stringify(fixedFilters));
-        let c = new MinZQuery(q.zRepoClient, q.variable, q.groupingDimension, fixedFilters, filters, q.accum, q.hGroupingDimension, q.vGroupingDimension);
+        let c = new MinZQuery(q.zRepoClient, q.variable, q.groupingDimension, fixedFilters, filters, q.accum, q.hGroupingDimension, q.vGroupingDimension, q.groupingDimensions);
         if (q.temporality) c.temporality = q.temporality;
         return c;
     }
-    constructor(zRepoClient, variable, groupingDimension, fixedFilters, filters, accum, hGroupingDimension, vGroupingDimension) {  
+    constructor(zRepoClient, variable, groupingDimension, fixedFilters, filters, accum, hGroupingDimension, vGroupingDimension, groupingDimensions) {  
         this.zRepoClient = zRepoClient;
         this.variable = variable;
         this.temporality = variable.temporality;
         this.groupingDimension = groupingDimension;
         this.hGroupingDimension = hGroupingDimension;
         this.vGroupingDimension = vGroupingDimension;
+        this.groupingDimensions = groupingDimensions;
         this.fixedFilters = fixedFilters || [];
         this.filters = filters || [];
         this.accum = accum || "sum";
@@ -469,6 +470,15 @@ class MinZQuery {
                 variable:this.variable, 
                 dimensionAgrupadoH:this.hGroupingDimension,
                 dimensionAgrupadoV:this.vGroupingDimension,
+                acumulador:this.accum,
+                temporality:this.temporality
+            }
+        } else if (args.format == "multi-dim") {
+            q = {
+                tipoQuery:"multi-dim", 
+                filtro:filtro, 
+                variable:this.variable, 
+                dimensionesAgrupado:this.groupingDimensions,
                 acumulador:this.accum,
                 temporality:this.temporality
             }

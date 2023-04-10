@@ -223,6 +223,14 @@ ZDashboardElement.registerComponent("dim-dim-table", "Tabla Dimensión-Dimensió
         c.useTemporality = false;
     }
 }, "fas fa-table-cells");
+ZDashboardElement.registerComponent("multi-dim-table", "Tabla Múltiple Dimensiones", "zdashboards/MultiDimTable", "zdashboards/chartProps/WMultiDimTable", {
+    init: c => {
+        c.height = 300;
+        c.acumulador = "value";
+        c.useQuery = true;
+        c.useTemporality = false;
+    }
+}, "fas fa-table-cells");
 ZDashboardElement.registerComponent("gauge", "Gauge","zdashboards/Gauge", "zdashboards/chartProps/WGauge", {
     init: c => {
         c.height = 200;

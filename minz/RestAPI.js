@@ -688,6 +688,34 @@ class RestAPI {
             }
         })
 
+        app.get("/data/:code/multi-dim", async (req, res) => {
+            try {
+                await security.checkPrivilege(this.getAuth(req), "minz-read");
+                let startTime = req.query.startTime;
+                let endTime = req.query.endTime;
+                if (!isNaN(parseInt(startTime)) && startTime.indexOf("-") < 0) startTime = parseInt(startTime);
+                if (!isNaN(parseInt(endTime)) && endTime.indexOf("-") < 0) endTime = parseInt(endTime);
+                if (!startTime || !endTime) throw "Must provide startTime and endTime";
+                if (typeof startTime == "string") startTime = moment.tz(startTime, config.timeZone).valueOf();
+                if (typeof endTime == "string") endTime = moment.tz(endTime, config.timeZone).valueOf();
+                let filter = req.query.filter || "{}";
+                filter = JSON.parse(filter);
+                let groupDimensions = req.query.groupDimensions;
+                if (!groupDimensions) throw "Must provide groupDimension (comma separated)";
+                groupDimensions = groupDimensions.split(",");
+                res.setHeader('Content-Type', 'application/json');
+                let rows = await variables.getMultiDimTable(req.params.code, startTime, endTime, groupDimensions, filter);
+                res.send(JSON.stringify(rows));
+            } catch(error) {
+                if (typeof error == "string") {
+                    res.status(400).send(error.toString())
+                } else {
+                    console.log(error);
+                    res.status(500).send("Internal Error")
+                }
+            }
+        })
+
     }
 }
 
