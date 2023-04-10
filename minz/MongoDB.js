@@ -30,6 +30,7 @@ class MongoDB {
             this.db = this.client.db(this.databaseName); 
             let col = await this.collection("process_execution");
             await col.createIndex({running:1});
+            await col.createIndex({code:1, running:1});
         } catch(error) {
             console.error("[MongoDB] Cannot connect to Database '" + this.databaseName + "'");
             console.error(error);            
