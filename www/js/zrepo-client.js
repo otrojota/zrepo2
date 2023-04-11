@@ -441,6 +441,17 @@ class ZRepoClient {
                         resultado = {promise:buildPromise, controller}
                     }
                     break;                
+                case "multi-dim": {
+                        let {promise, controller} = this.queryMultiDim(query.variable.code, startTime, endTime, filtro, query.dimensionesAgrupado, query.dimensionAgrupadoV);
+                        let buildPromise = new Promise((resolve, reject) => {
+                            promise.then(res => {
+                                res.forEach(r => r.resultado = this.extraeAcumulador(r, query.acumulador));
+                                resolve(res);
+                            }).catch(err => reject(err))
+                        })
+                        resultado = {promise:buildPromise, controller}
+                    }
+                    break;                
                 default:
                     throw "Tipo de query '" + query.tipoQuery + "' no implementado";
             }
@@ -554,6 +565,19 @@ class ZRepoClient {
             url += "&filter=" + encodeURIComponent(JSON.stringify(filter));
             url += "&hGroupDimension=" + dimensionAgrupadoH;
             url += "&vGroupDimension=" + dimensionAgrupadoV;
+            let controller = new AbortController();
+            //console.log("zrepo query url", url)
+            return {promise: this._getJSON(url, controller.signal), controller:controller}
+        } catch(error) {
+            throw error;
+        }
+    }
+    queryMultiDim(codigoVariable, startTime, endTime, filter, dimensionesAgrupado) {
+        try {
+            let url = this.url + "/data/" + codigoVariable + "/multi-dim?token=" + this.token;
+            url += "&startTime=" + startTime + "&endTime=" + endTime;
+            url += "&filter=" + encodeURIComponent(JSON.stringify(filter));
+            url += "&groupDimensions=" + dimensionesAgrupado;
             let controller = new AbortController();
             //console.log("zrepo query url", url)
             return {promise: this._getJSON(url, controller.signal), controller:controller}

@@ -16,7 +16,7 @@ class WTimeDim extends ZDialog {
         this.edTipoSerie.setRows([{
             code:"columns", name:"Columnas"
         }, {
-            code:"3d-columns", name:"Columnas 3D"
+            code:"line", name:"Líneas"
         }], options.serieType)
         this.edLeyendas.setRows([{
             code:"none", name:"[No mostrar Leyendas]"

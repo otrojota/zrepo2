@@ -1,60 +1,33 @@
-class DimTable extends ZDashboardElement {
-    get code() {return "dim-table"}
+class MultiDimTable extends ZDashboardElement {
+    get code() {return "multi-dim-table"}
     get exportable() {return true}
     async refresh(start, end, operation = "refresh") {
         try {
-            if (operation == "refresh") this.drillStack = [];
             this.start = start;
             this.end = end;
 
-            if (!this.q || !this.options.ruta) throw "No ha configurado variable";            
+            if (!this.q) throw "No ha configurado variable";
+            if (!this.options.agrupadores || !this.options.agrupadores.length) throw "No ha configurado las columnas de agrupación";
             if (operation == "refresh") {
-                this.q.groupingDimension = this.options.ruta;                
+                this.q.groupingDimensions = this.options.agrupadores.map(a => (a.ruta));                
                 this.q.filters = this.prepareFilters();
-            } // else viene en la query de los drills down/up
+            } 
             let {promise, controller} = await this.q.query({
-                format:"dim-serie", startTime:start.valueOf(), endTime:end.valueOf()                
+                format:"multi-dim", startTime:start.valueOf(), endTime:end.valueOf()                
             });
-            //let canDrillDown = this.q.groupingDimension.indexOf(".") > 0;
             let data = await promise;            
-            console.log("data", data);
+            //console.log("data", data);
 
             // Si el dimData es "soure" se usan los datos originales de la dimension por la que se agrupa
-            if (this.options.dimData == "source") {
-                // obtener dimension
-                let dimension = await this.q.getDimensionDeRuta(this.options.ruta);
-                let dimQuery = new MinZQuery(window.zRepoClient, dimension, null, null, null);    
-                dimQuery.filters = this.prepareFilters(this.options.dimFilter);          
-                let rows = await dimQuery.query({format:"dim-rows"});
-                // agregar campo "dim"
-                for (let row of rows) {
-                    row.dim = {code: row.code, name: row.name};
-                }
-                // crear mapa para acelerar mapeao
-                let map = rows.reduce((map, row) => {
-                    map[row.code] = row;
-                    return map;
-                }, {});
-                for (let row of data) {
-                    let r = map[row.dim.code];
-                    if (r) {
-                        r.resultado = row.resultado;
-                        r.min = row.min;
-                        r.max = row.max;
-                        r.n = row.n;
-                        r.value = row.value;
-                    }
-                }
-                data = rows;
-            } else {
-                data = data.sort((d1, d2) => (d1.dim.order - d2.dim.order));
-            }
-
+            data = data.sort((d1, d2) => (this.comparaOrdenFilas(d1, d2)));
             
             let unit;
             if (this.q.accum == "n") unit = "N°";
             else unit = this.q.variable.options?this.q.variable.options.unit:"S/U";
-            let titulo = this.options.tituloColumnaDimension || "";
+            let agrupadoresHeaders = this.options.agrupadores.reduce((html, a) => {
+                html += `<td>${a.tituloColumnaDimension}</td>`;
+                return html;
+            }, "");
             let extraHeaders = "";
             if (this.options.accum2 && this.options.accum2 != "no") extraHeaders += `<td class="text-end">${this.getTituloAccum(this.options.accum2)}</td>`;
             if (this.options.accum3 && this.options.accum3 != "no") extraHeaders += `<td class="text-end">${this.getTituloAccum(this.options.accum3)}</td>`;
@@ -64,7 +37,7 @@ class DimTable extends ZDashboardElement {
                 <table class="table table-dark table-striped">
                     <thead>
                         <tr>
-                            <td>${titulo}</td>
+                            ${agrupadoresHeaders}
                             <td class="text-end">${unit}</td>
                             ${extraHeaders}
                         </tr>
@@ -74,7 +47,10 @@ class DimTable extends ZDashboardElement {
             let totales = {sum:0, n:0};
             for (let row of data) {
                 html += `<tr>`;
-                html += `   <td>${row.dim.name}</td>`;
+                for (let i=0; i<this.options.agrupadores.length; i++) {
+                    html += `   <td>${row["dim_" + (i+1)].name}</td>`;
+                }
+                
                 let stVal = this.options.zeroFill?"0":"";
                 if (row.resultado !== undefined) {
                     stVal = (row.resultado || 0).toLocaleString();
@@ -97,6 +73,9 @@ class DimTable extends ZDashboardElement {
             let tfoot = "";
             if (this.options.totalsRow) {
                 tfoot += "<tfoot><tr><td>Totales</td>";
+                for (let i=1; i<this.options.agrupadores.length; i++) {
+                    tfoot += `   <td></td>`;
+                }
                 tfoot += `<td class="text-end">${this.getTotal(this.q.accum, totales)}</td>`;
                 if (this.options.accum2 && this.options.accum2 != "no") tfoot += `<td class="text-end">${this.getTotal(this.options.accum2, totales)}</td>`;
                 if (this.options.accum3 && this.options.accum3 != "no") tfoot += `<td class="text-end">${this.getTotal(this.options.accum3, totales)}</td>`;
@@ -118,6 +97,16 @@ class DimTable extends ZDashboardElement {
         }
     }
 
+    comparaOrdenFilas(r1, r2) {
+        let idx=1;
+        do {
+            if (idx >= this.options.agrupadores.length) return 0; // iguales
+            let o1 = r1["dim_" + (idx)].order;
+            let o2 = r2["dim_" + (idx)].order;
+            if (o1 != o2) return o1 - o2;
+            idx++;
+        } while(true);
+    }
     getTituloAccum(accum) {
         switch(accum) {
             case "n":   return "Nª";
@@ -130,7 +119,7 @@ class DimTable extends ZDashboardElement {
     }
     extraeAccum(accum, row) {
         switch(accum) {
-            case "n":   return (row.n || 0);
+            case "n":   return (row.n || 0).toLocaleString();
             case "sum": return (row.value || 0).toLocaleString();
             case "min": return (row.min !== undefined?row.min.toLocaleString():"");
             case "max": return (row.max !== undefined?row.max.toLocaleString():"");
@@ -150,24 +139,6 @@ class DimTable extends ZDashboardElement {
             case "avg": return (totales.n !== undefined && totales.n > 0?(totales.sum / totales.n).toLocaleString():"");
             default: return "??: " + accum;
         }
-    }
-
-    drilldown(dimValue) {
-        this.drillStack.push(this.q);
-        let q2 = MinZQuery.cloneQuery(this.q);
-        let p = q2.groupingDimension.lastIndexOf(".");
-        q2.groupingDimension = this.q.groupingDimension.substr(0,p);
-        // Reconstruir filtros, desde la query 0 (filtro original) agregando el drill de este nivel
-        q2.filters = this.drillStack[0].filters?JSON.parse(JSON.stringify(this.drillStack[0].filters)):[];        
-        q2.filters.push({ruta:this.q.groupingDimension, valor:dimValue});
-        this.setQuery(q2);
-        this.refresh(this.start, this.end, "push");
-    }
-    drillUp() {
-        let q = this.drillStack[this.drillStack.length - 1];
-        this.drillStack.splice(this.drillStack.length - 1, 1);
-        this.setQuery(q);
-        this.refresh(this.start, this.end, "pop");
     }
 
     doResize() {
@@ -202,4 +173,4 @@ class DimTable extends ZDashboardElement {
         XLSX.writeFile(workbook, "export.xlsx", { compression: true });
     }
 }
-ZVC.export(DimTable);
+ZVC.export(MultiDimTable);
