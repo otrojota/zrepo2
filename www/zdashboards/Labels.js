@@ -1,8 +1,7 @@
 class Labels extends ZDashboardElement {
     get code() {return "labels"}
-    onThis_init() {
-    }
     parseText(text, vars) {
+        if (!text) return "";
         let st = "";
         let i0 = 0;
         let i1 = text.indexOf("${", i0);        
@@ -25,16 +24,27 @@ class Labels extends ZDashboardElement {
         }
         return st + text.substring(i0);
     }
-    async refresh(start, end) {
+    async refresh(start, end, operation = "refresh") {
         try {
             this.dispose();
-            if (!this.q) return;            
+            if (!this.q) return;
+            if (operation == "refresh") {
+                delete this.q.accum;
+                this.q.filters = this.prepareFilters();
+            }
             let {promise, controller} = await this.q.query({
                 format:"period-summary", startTime:start.valueOf(), endTime:end.valueOf()
             });
             let data = await promise;
-
-            let vars = {sum:data.value, min:data.min, max:data.max, avg:data.n?data.value:data.n, n:data.n};
+            console.log("data", data);
+            if (data.n) {
+                data.avg = (data.value / data.n).toLocaleString();
+                data.n = data.n.toLocaleString();            
+            }
+            if (data.value) data.value = data.value.toLocaleString();
+            if (data.min) data.min = data.min.toLocaleString();
+            if (data.max) data.max = data.max.toLocaleString();
+            let vars = {sum:data.value, min:data.min, max:data.max, avg:data.avg, n:data.n};
             vars.unit = (this.q.variable.options && this.q.variable.options.unit?this.q.variable.options.unit:"S/U");
 
             this.grid = [[null, null, null], [null, null, null], [null, null, null]];

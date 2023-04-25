@@ -274,3 +274,12 @@ ZDashboardElement.registerComponent("resume-table", "Tabla Resumen Período", "z
         c.showMax = "";
     }
 }, "fas fa-table-cells");
+ZDashboardElement.registerComponent("labels", "Labels","zdashboards/Labels", "zdashboards/chartProps/WLabels", {
+    init: c => {
+        c.height = 200;
+        c.acumulador = "value";
+        c.layout = {c:{text:"Valor: ${value}"}};
+        c.useQuery = true;
+        c.useTemporality = false;
+    }
+}, "fas fa-tag");
