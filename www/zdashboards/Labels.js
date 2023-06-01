@@ -36,7 +36,6 @@ class Labels extends ZDashboardElement {
                 format:"period-summary", startTime:start.valueOf(), endTime:end.valueOf()
             });
             let data = await promise;
-            console.log("data", data);
             if (data.n) {
                 data.avg = (data.value / data.n).toLocaleString();
                 data.n = data.n.toLocaleString();            
