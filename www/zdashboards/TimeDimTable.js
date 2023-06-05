@@ -229,7 +229,7 @@ class TimeDimTable extends ZDashboardElement {
     formatLocalTime(localTime, timeFormat) {
         let m = moment.tz(window.timeZone);
         m.year(localTime.year);
-        m.month(localTime.month);
+        m.month(localTime.month - 1);
         m.date(localTime.day);
         m.hour(localTime.hour);
         m.minute(localTime.minute);
