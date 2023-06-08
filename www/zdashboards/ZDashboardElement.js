@@ -223,6 +223,15 @@ ZDashboardElement.registerComponent("dim-dim-table", "Tabla Dimensión-Dimensió
         c.useTemporality = false;
     }
 }, "fas fa-table-cells");
+ZDashboardElement.registerComponent("time-dim-table", "Tabla Tiempo-Dimensión", "zdashboards/TimeDimTable", "zdashboards/chartProps/WTimeDimTable", {
+    init: c => {
+        c.height = 300;
+        c.acumulador = "value";
+        c.useQuery = true;
+        c.useTemporality = true;
+        c.timeFormat = "DD/MM HH:mm";
+    }
+}, "fas fa-table-cells");
 ZDashboardElement.registerComponent("multi-dim-table", "Tabla Múltiple Dimensiones", "zdashboards/MultiDimTable", "zdashboards/chartProps/WMultiDimTable", {
     init: c => {
         c.height = 300;
@@ -274,3 +283,12 @@ ZDashboardElement.registerComponent("resume-table", "Tabla Resumen Período", "z
         c.showMax = "";
     }
 }, "fas fa-table-cells");
+ZDashboardElement.registerComponent("labels", "Labels","zdashboards/Labels", "zdashboards/chartProps/WLabels", {
+    init: c => {
+        c.height = 200;
+        c.acumulador = "value";
+        c.layout = {c:{text:"Valor: ${value}"}};
+        c.useQuery = true;
+        c.useTemporality = false;
+    }
+}, "fas fa-tag");

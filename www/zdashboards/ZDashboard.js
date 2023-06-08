@@ -348,5 +348,6 @@ class ZDashboard extends ZCustomController {
             }
         }
     }
+    
 }
 ZVC.export(ZDashboard);

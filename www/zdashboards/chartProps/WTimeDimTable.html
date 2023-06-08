@@ -1,0 +1,71 @@
+<div class="modal fade" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h6 id="title" class="modal-title">Time / Dim - Tabla</h6>
+                <i id="cmdCloseWindow" class="zrepo-panel-close" data-z-clickable="true"></i>
+            </div>
+            <div class="modal-body container">
+                <div class="row mb-2">
+                    <div class="col-6">
+                        <div class="form-group">
+                            <label for="edRutaH">Agrupador Horizontal</label>
+                            <div class="input-group input-group-sm">
+                                <input id="edRutaH" class="form-control" readonly style="background-color: rgba(68, 68, 67, 1);" />
+                                <div class="input-group-append mt-1">
+                                    <button id="cmdSeleccionaRutaH" class="btn btn-outline-secondary" type="button">
+                                        <i class="fas fa-search ml-2"></i>
+                                    </button>
+                                    </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="form-group">
+                            <label for="edTimeFormat">Formato Tiempo (Vertical)</label>
+                            <select id="edTimeFormat" class="selectpicker show-tick w-100" data-live-search="true" data-style="btn btn-sm btn-outline-secondary bg-white px-2" data-z-id-field="format" data-z-label-field="format"></select>
+                        </div>
+                    </div>
+                </div>
+                <div class="row my-3">
+                    <div class="col-6">
+                        <label for="edTotHorizontal">Totalizador Horizontal</label>
+                        <select id="edTotHorizontal" class="selectpicker show-tick w-100" data-live-search="true" data-style="btn btn-sm btn-outline-secondary bg-white px-2" data-z-id-field="code" data-z-label-field="name"></select>
+                    </div>
+                    <div class="col-6">
+                        <label for="edTotVertical">Totalizador Vertical</label>
+                        <select id="edTotVertical" class="selectpicker show-tick w-100" data-live-search="true" data-style="btn btn-sm btn-outline-secondary bg-white px-2" data-z-id-field="code" data-z-label-field="name"></select>
+                    </div>
+                </div>
+                <div class="row my-3">
+                    <div class="col-6">
+                        <label for="edTotGlobal">Totalizador Global</label>
+                        <select id="edTotGlobal" class="selectpicker show-tick w-100" data-live-search="true" data-style="btn btn-sm btn-outline-secondary bg-white px-2" data-z-id-field="code" data-z-label-field="name"></select>
+                    </div>
+                    <div class="col-6">
+                        <label for="edVacios">Celdas Sin Datos</label>
+                        <select id="edVacios" class="selectpicker show-tick w-100" data-live-search="true" data-style="btn btn-sm btn-outline-secondary bg-white px-2" data-z-id-field="code" data-z-label-field="name"></select>
+                    </div>
+                </div>
+                <div class="row my-3">
+                    <div class="col-6">
+                        <label for="edDimDataH">Datos de Dimensión Horizontal</label>
+                        <select id="edDimDataH" class="form-select form-select-sm form-control w-100" data-z-id-field="code" data-z-label-field="name"></select>
+                    </div>
+                    <div id="colFiltroDimensionH" class="col-6">
+                        <div class="border rounded p-2 text-center h-100">
+                            <a id="cmdFiltroDimensionH" style="cursor: pointer; text-decoration: underline;">Filtrar Datos Dimensión Horizontal</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="cmdOk" type="button" class=" btn btn-sm btn-outline-success">
+                    <i class="far fa-check-circle float-left mt-1 mr-2"></i>
+                    Aceptar
+                </button>
+                <button id="cmdCancel" type="button" class="btn btn-sm btn-outline-secondary">Cancelar</button>
+            </div> 
+        </div>
+    </div>
+</div>
