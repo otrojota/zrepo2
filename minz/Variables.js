@@ -1,5 +1,5 @@
 const config = require("../lib/Config");
-const mongo = require('./MongoDB');
+const {mongoRead, mongoWrite} = require('./MongoDB');
 const dimensions = require("./Dimensions");
 const moment = require("moment-timezone");
 const logs = require("../lib/Logs");
@@ -49,7 +49,7 @@ class Variables {
     }
 
     async init() {
-        if (!mongo.isInitialized()) return;
+        if (!mongoRead.isInitialized()) return;
         try {
             this.varIndexerPipes = [];
             Object.keys(this.variables).forEach(varCode => this.variables[varCode].code = varCode)
@@ -64,7 +64,7 @@ class Variables {
 
     async recreateIndexes(variable, dontDrop) {
         try {
-            let col = await mongo.collection(variable.code);
+            let col = await mongoWrite.collection(variable.code);
             if (!dontDrop) {
                 try {
                     await col.dropIndexes();
@@ -100,10 +100,10 @@ class Variables {
                 if (varData) {
                     let f = filter || {};
                     f.time = {$gte:startTime, $lt:endTime}
-                    res = await (await mongo.collection(variableCode)).deleteMany(f);
+                    res = await (await mongoWrite.collection(variableCode)).deleteMany(f);
                 }
                 if (details && v.saveDetails) {
-                    await (await mongo.collection(variableCode + "_det")).deleteMany({time:{$gte:startTime, $lt:endTime}});
+                    await (await mongoWrite.collection(variableCode + "_det")).deleteMany({time:{$gte:startTime, $lt:endTime}});
                 }
             } catch(error) {
                 console.log(error);
@@ -152,10 +152,10 @@ class Variables {
             try {
                 let v = this.variables[variableCode];
                 if (!v) throw "No se encontró la variable '" + variableCode + "'";
-                await (await mongo.collection(variableCode)).dropIndexes(); 
+                await (await mongoWrite.collection(variableCode)).dropIndexes(); 
                 // Delete "_idx" collection if exists
                 try {
-                    await (await mongo.collection(variableCode + "_idx")).drop();
+                    await (await mongoWrite.collection(variableCode + "_idx")).drop();
                 } catch(err) {
                     console.log("Indexing collection. No previous _idx collection found");
                 }
@@ -166,14 +166,14 @@ class Variables {
                 pipe = pipe.concat(this.getVarIndexerPipe(variableCode));
                 pipe.push({$out:variableCode + "_idx"});
                 console.log("Start Full index on " + variableCode + " with pipe", pipe);
-                let cursor = await (await mongo.collection(variableCode)).aggregate(pipe);
+                let cursor = await (await mongoWrite.collection(variableCode)).aggregate(pipe);
                 let rows = [];
                 while (await cursor.hasNext()) {
                     var doc = await cursor.next();
                     rows.push(doc);
                 }
                 await cursor.close();
-                await mongo.db.renameCollection(variableCode + "_idx", variableCode, {dropTarget:true});
+                await mongoWrite.db.renameCollection(variableCode + "_idx", variableCode, {dropTarget:true});
                 console.log("End of Full index on " + variableCode);
                 await this.loadVariables(); 
                 await this.recreateIndexes(v);
@@ -297,9 +297,9 @@ class Variables {
                 dimValues[c.fieldName] = dimValue;
             }
             if (v.saveDetails) {
-                await (await mongo.collection(varCode + "_det")).insertOne({time:time, value:value, data:data});
+                await (await mongoWrite.collection(varCode + "_det")).insertOne({time:time, value:value, data:data});
             }
-            let varCollection = await mongo.collection(varCode);
+            let varCollection = await mongoWrite.collection(varCode);
             let doc = await varCollection.findOne(filter);
             if (doc) {
                 let newValue = doc.value + value;
@@ -568,7 +568,7 @@ class Variables {
     }  
     async getTimeSerie(varCode, temporality, startTime, endTime, filter) {
         //console.log("getTimeSerie:" + varCode + ", " + new Date(startTime) + " - " + new Date(endTime));
-        let varCollection = await mongo.collection(varCode);
+        let varCollection = await mongoRead.collection(varCode);
         let pipe = this.getTimeSeriePipeline(varCode, temporality, startTime, endTime, filter);
         let cursor = await varCollection.aggregate(pipe);
         let rows = [];
@@ -613,7 +613,7 @@ class Variables {
         return pipe;
     }
     async getPeriodResume(varCode, startTime, endTime, filter) {
-        let varCollection = await mongo.collection(varCode);
+        let varCollection = await mongoRead.collection(varCode);
         let pipe = this.getPeriodResumePipeline(varCode, startTime, endTime, filter);
         let cursor = await varCollection.aggregate(pipe);
         let resume = null;
@@ -693,7 +693,7 @@ class Variables {
         return pipe;
     }
     async getDimSerie(varCode, startTime, endTime, filter, groupDimension) {
-        let varCollection = await mongo.collection(varCode);
+        let varCollection = await mongoRead.collection(varCode);
         let pipe = this.getDimSeriePipeline(varCode, startTime, endTime, filter, groupDimension);
         let cursor = await varCollection.aggregate(pipe);
         let rows = [];
@@ -710,7 +710,7 @@ class Variables {
         }
         let path = "" + bottomDim;
         let topRest = topDim.substring(path.length + 1).split(".");
-        let varCollection = await mongo.collection(varCode);
+        let varCollection = await mongoRead.collection(varCode);
         let pipe = this.getDimSeriePipeline(varCode, startTime, endTime, filter, bottomDim, topRest[0]);
         let cursor = await varCollection.aggregate(pipe);
         let rows = [];
@@ -858,7 +858,7 @@ class Variables {
         return pipe;
     }
     async getTimeDimTable(varCode, temporality, startTime, endTime, groupDimension, filter) {
-        let varCollection = await mongo.collection(varCode);
+        let varCollection = await mongoRead.collection(varCode);
         let pipe = this.getTimeDimTablePipeline(varCode, temporality, startTime, endTime, groupDimension, filter);
         let cursor = await varCollection.aggregate(pipe);
         let rows = [];
@@ -946,7 +946,7 @@ class Variables {
         return pipe;
     }
     async getDimDimTable(varCode, startTime, endTime, hGroupDimension, vGroupDimension, filter) {
-        let varCollection = await mongo.collection(varCode);
+        let varCollection = await mongoRead.collection(varCode);
         let pipe = this.getDimDimTablePipeline(varCode, startTime, endTime, hGroupDimension, vGroupDimension, filter);
         let cursor = await varCollection.aggregate(pipe);
         let rows = [];
@@ -1030,7 +1030,7 @@ class Variables {
         return pipe;
     }
     async getMultiDimTable(varCode, startTime, endTime, groupDimensions, filter) {
-        let varCollection = await mongo.collection(varCode);
+        let varCollection = await mongoRead.collection(varCode);
         let pipe = this.getMultiDimTablePipeline(varCode, startTime, endTime, groupDimensions, filter);
         let cursor = await varCollection.aggregate(pipe);
         let rows = [];

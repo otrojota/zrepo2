@@ -31,7 +31,7 @@
     "hjson": "^3.2.1",
     "kafkajs": "^2.0.0",
     "moment-timezone": "^0.5.31",
-    "mongodb": "^3.6.2",
+    "mongodb": "^5.7.0",
     "mosca": "^2.8.3",
     "nodemailer": "^6.5.0",
     "nodemon": "^2.0.4",

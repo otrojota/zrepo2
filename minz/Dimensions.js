@@ -1,6 +1,6 @@
 'use strict';
 
-const mongo = require("./MongoDB");
+const {mongoRead, mongoWrite} = require("./MongoDB");
 
 class Dimensions {
     static get instance() {
@@ -24,7 +24,7 @@ class Dimensions {
     // Dimension Data
     async getNextOrder(dimensionCode) {
         try {
-            let [lastRow] = await (await mongo.collection(dimensionCode)).find({}).sort({order:-1}).limit(1).toArray();        
+            let [lastRow] = await (await mongoRead.collection(dimensionCode)).find({}).sort({order:-1}).limit(1).toArray();        
             return lastRow?lastRow.order+1:1;
         } catch(error) {
             throw error;
@@ -46,7 +46,7 @@ class Dimensions {
             row._id = row.code;
             row.order = await this.getNextOrder(dimensionCode);
             try {
-                await (await mongo.collection(dimensionCode)).insertOne(row);
+                await (await mongoWrite.collection(dimensionCode)).insertOne(row);
             } catch(error) {
                 console.log(error);
                 if (error.code == 11000) {
@@ -83,7 +83,7 @@ class Dimensions {
             for (let fieldName in row) {
                 if (!usedFields[fieldName]) setObject[fieldName] = row[fieldName];
             }
-            await (await mongo.collection(dimensionCode)).updateOne({_id:row.code}, {$set:setObject});
+            await (await mongoWrite.collection(dimensionCode)).updateOne({_id:row.code}, {$set:setObject});
             return row;
         } catch(error) {
             throw error;
@@ -93,7 +93,7 @@ class Dimensions {
         try {
             let row = await this.getRow(dimensionCode, code);
             if (!row) throw "No se encontró la fila";
-            await (await mongo.collection(dimensionCode)).deleteOne({_id:code});
+            await (await mongoWrite.collection(dimensionCode)).deleteOne({_id:code});
             return row;
         } catch(error) {
             throw error;
@@ -103,7 +103,7 @@ class Dimensions {
         try {
             let d = this.dimensions[dimensionCode];
             if (!d) throw("No se encontró la dimensión '" + dimensionCode + "'");
-            let row = await (await mongo.collection(dimensionCode)).findOne({_id:code});
+            let row = await (await mongoRead.collection(dimensionCode)).findOne({_id:code});
             return row;
         } catch(error) {
             throw error;
@@ -125,7 +125,7 @@ class Dimensions {
             row.order = await this.getNextOrder(dimensionCode);
             let setObject = JSON.parse(JSON.stringify(row));
             try {
-                let col = await mongo.collection(dimensionCode);
+                let col = await mongoWrite.collection(dimensionCode);
                 await col.updateOne({_id:row._id}, {$set:setObject}, {upsert:true})
             } catch(error) {
                 throw("Cannot add or update row to dimension '" + dimensionCode + "':" + error.toString());
@@ -139,7 +139,7 @@ class Dimensions {
         try {
             let d = this.dimensions[dimensionCode];
             if (!d) throw("Can't find dimension '" + dimensionCode + "'");
-            let found = await (await mongo.collection(dimensionCode)).findOne({_id:code});
+            let found = await (await mongoRead.collection(dimensionCode)).findOne({_id:code});
             if (found) return;
             let doc = {_id:code, code:code, name:d.name + " " + code}
             d.classifiers.forEach(c => {
@@ -147,7 +147,7 @@ class Dimensions {
             });
             doc.order = await this.getNextOrder(dimensionCode);
             try {
-                await (await mongo.collection(dimensionCode)).insertOne(doc);
+                await (await mongoWrite.collection(dimensionCode)).insertOne(doc);
             } catch(error) {
                 throw("Cannot create default row in dimension '" + dimensionCode + "':" + error.toString());
             }
@@ -272,7 +272,7 @@ class Dimensions {
     async getRowsCount(dimensionCode, textFilter, filter) {
         let pipe = this.getRowsFilterPipeline(dimensionCode, textFilter, filter);
         pipe.push({$count:"n"});
-        let cursor = await (await mongo.collection(dimensionCode)).aggregate(pipe);
+        let cursor = await (await mongoRead.collection(dimensionCode)).aggregate(pipe);
         let n = 0;
         if (await cursor.hasNext()) {
             let doc = await cursor.next();
@@ -289,7 +289,7 @@ class Dimensions {
             pipe.push({$skip:startRow});
             pipe.push({$limit:nRows});
         }
-        let cursor = await (await mongo.collection(dimensionCode)).aggregate(pipe);
+        let cursor = await (await mongoRead.collection(dimensionCode)).aggregate(pipe);
         let rows = [];
         while(await cursor.hasNext()) {
             rows.push(await cursor.next());
@@ -305,7 +305,7 @@ class Dimensions {
             if (idx < 1) return;
             let r1 = allRows[idx];
             let r2 = allRows[idx - 1];
-            let col = await mongo.collection(dimensionCode);
+            let col = await mongoWrite.collection(dimensionCode);
             await col.updateOne({_id:r1._id}, {$set:{order:r2.order}});
             await col.updateOne({_id:r2._id}, {$set:{order:r1.order}});
         } catch (error) {
@@ -320,7 +320,7 @@ class Dimensions {
             if (idx < 0 || idx > (n - 2)) return;
             let r1 = allRows[idx];
             let r2 = allRows[idx + 1];
-            let col = await mongo.collection(dimensionCode);
+            let col = await mongoWrite.collection(dimensionCode);
             await col.updateOne({_id:r1._id}, {$set:{order:r2.order}});
             await col.updateOne({_id:r2._id}, {$set:{order:r1.order}});
         } catch (error) {
@@ -330,7 +330,7 @@ class Dimensions {
 
     async getAllRows(dimensionCode) {
         try {
-            let col = await mongo.collection(dimensionCode);
+            let col = await mongoRead.collection(dimensionCode);
              let rows = await col.find().toArray();
              return rows;
         } catch (error) {
@@ -346,7 +346,7 @@ class Dimensions {
             pipe.push({$limit:nRows});
         }
 
-        let cursor = await (await mongo.collection(dimensionCode)).aggregate(pipe);
+        let cursor = await (await mongoRead.collection(dimensionCode)).aggregate(pipe);
         let rows = [];
         while(await cursor.hasNext()) {
             rows.push(await cursor.next());
@@ -411,13 +411,13 @@ class Dimensions {
     async findOrCreate(dimensionCode, id) {
         let d = this.dimensions[dimensionCode];
         if (!d) throw("No se encontró la dimensión '" + dimensionCode + "'");
-        let doc = await (await mongo.collection(dimensionCode)).findOne({_id:id});
+        let doc = await (await mongoWrite.collection(dimensionCode)).findOne({_id:id});
         if (!doc) {
             doc = {_id:id, code:id, name:d.name + " " + id};
             d.classifiers.forEach(c => doc[c.fieldName] = c.defaultValue);
             doc.order = await this.getNextOrder(dimensionCode);
             try {
-                await (await mongo.collection(dimensionCode)).insertOne(doc);
+                await (await mongoWrite.collection(dimensionCode)).insertOne(doc);
             } catch(error) {
                 // Ignorar .. en modo batch se procesan en paralelo
             }
@@ -453,7 +453,7 @@ class Dimensions {
     async getRowWithDependencies(dimensionCode, code) {
         let d =this.dimensions[dimensionCode];
         if (!d) throw("No se encontró la dimensión '" + dimensionCode + "'");
-        let doc = await (await mongo.collection(dimensionCode)).findOne({_id:code});
+        let doc = await (await mongoRead.collection(dimensionCode)).findOne({_id:code});
         if (doc) {
             for (let i=0; i<d.classifiers.length; i++) {
                 let c = d.classifiers[i];
