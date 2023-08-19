@@ -46,14 +46,19 @@ class ZDashboard extends ZCustomController {
     }
 
     async createLayout() {
-        this.params = {};
-        this.dirtyParams = {};
-        this.layoutContainer.html = "";
-        this.elementControllers = {};
-        await this.createLayoutFrom(this.dashboard.config.layout, this.layoutContainer.view);
-        this.cmdDesignElement.hide();
-        this.cmdExportData.hide();
-        this.doResize();
+        try {
+            await ZDashboardElement.loadExternalComponents();
+            this.params = {};
+            this.dirtyParams = {};
+            this.layoutContainer.html = "";
+            this.elementControllers = {};
+            await this.createLayoutFrom(this.dashboard.config.layout, this.layoutContainer.view);
+            this.cmdDesignElement.hide();
+            this.cmdExportData.hide();
+            this.doResize();
+        }catch(error) {
+            console.error(error);
+        }
     }
     async createLayoutFrom(layout, container) {
         for (let i=0; i<layout.size; i++) {

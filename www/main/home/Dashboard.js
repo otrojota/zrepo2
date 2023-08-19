@@ -30,7 +30,7 @@ class Dashboard extends ZCustomController {
     }
 
     getContextMenu() {
-        if (!this.dashboard) return null;
+        if (!this.dashboard) return null;        
         if (window.sesion.user.email == this.dashboard.owner || this.dashboard.editable) {
             let menu;
             if (this.modoDiseno) {

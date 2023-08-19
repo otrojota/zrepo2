@@ -140,6 +140,11 @@ class ZDashboardElement extends ZCustomController {
     
     static registerComponent(type, name, elementPath, propsPath, factories, icon) {
         if (!ZDashboardElement._components) ZDashboardElement._components = [];
+        if (ZDashboardElement.currentPlugin) {            
+            name = "[" + ZDashboardElement.currentPlugin + "] " + name;
+            elementPath = "proxy/" + ZDashboardElement.currentPlugin + "/" + elementPath;
+            propsPath = "proxy/" + ZDashboardElement.currentPlugin + "/" + propsPath;
+        }
         let idx = ZDashboardElement._components.findIndex(c => c.code == type);
         if (idx >= 0) throw "Componente " + type +" repetido!";
         ZDashboardElement._components.push({type, name, elementPath, propsPath, factories, icon});        
@@ -151,6 +156,42 @@ class ZDashboardElement extends ZCustomController {
     static getCoomponentsList() {
         let list = ZDashboardElement._components.map(c => (c)).sort((c1, c2) => (c1.name > c2.name?1:-1));
         return list;
+    }
+    static async loadExternalComponents() {                
+        if (ZDashboardElement.externalComponentsLoaded) return;
+        let plugins = await zPost("getPlugins.zrepo");
+        let codigos = Object.keys(plugins);
+        for (let codigo of codigos) {
+            if (plugins[codigo].registerDashboardElements) {
+                console.log("Plugin " + codigo + " will register dashboard components");
+                ZDashboardElement.currentPlugin = codigo;
+                try {
+                    let path = `proxy/${codigo}/init-components.js`
+                    let response = await fetch(path);
+                    let text = await response.text();
+                    if (response.status != 200) {                    
+                        throw "[" + response.status + ": " + response.statusText + "] " + text;
+                    }
+                    eval(text);
+                } catch(error) {
+                    console.error(error);
+                }
+                ZDashboardElement.currentPlugin = null;
+            } else {
+                console.log("Plugin " + codigo + " does not declare dashboard components");
+            }
+        }
+        ZDashboardElement.externalComponentsLoaded = true;
+        console.log("Externals dashboard components loaded");
+    }
+
+    static loadCSSFile(path) {
+        let link = document.createElement("link");
+        link.rel  = 'stylesheet';
+        link.type = 'text/css';
+        link.href = "proxy/" + ZDashboardElement.currentPlugin + "/" + path;
+        link.media = 'all';
+        document.head.appendChild(link);
     }
 }
 
