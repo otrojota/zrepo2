@@ -74,7 +74,7 @@ class TimeDimTable extends ZDashboardElement {
             if (isNaN(nDec)) nDec = 2;
 
             let html = `
-                <table class="table table-dark table-striped dim-dim-table">
+                <table class="table table-dark table-striped dim-dim-table" style="font-size: 80%">
                     <tr class="dim-dim-table-row">
                         <td></td>
             `;
@@ -105,7 +105,7 @@ class TimeDimTable extends ZDashboardElement {
                     if (isNaN(valor) && vacio == "cero") valor = 0;
                     let stValor = "";
                     if (!isNaN(valor)) {
-                        stValor = "" + valor.toFixed(nDec);
+                        stValor = "" + (parseFloat(valor.toFixed(nDec))).toLocaleString();
                         // Acumulador horizontal (fila)
                         if (totHorizontal == "sum") {
                             acumFila = (acumFila === undefined?0:acumFila) + valor;
@@ -164,12 +164,13 @@ class TimeDimTable extends ZDashboardElement {
                     let v = "";
                     if (acumFila !== undefined) {
                         if (totHorizontal == "sum") {
-                            v = "" + acumFila.toFixed(nDec);
+                            v = acumFila.toFixed(nDec);
                         } else if (totHorizontal == "avg_cells") {
-                            v = "" + (acumFila.sum / acumFila.n).toFixed(nDec);
+                            v = (acumFila.sum / acumFila.n).toFixed(nDec);
                         } else if (totHorizontal == "avg_data") {
-                            v = "" + (acumFila.sum / acumFila.n).toFixed(nDec);
+                            v = (acumFila.sum / acumFila.n).toFixed(nDec);
                         }
+                        v = parseFloat(v).toLocaleString();
                     }
                     html += `
                         <td class="dim-dim-table-cell-total">${v}</td>
@@ -187,12 +188,13 @@ class TimeDimTable extends ZDashboardElement {
                     let v = "", accum = acumColumnas[columna.code];
                     if (accum !== undefined) {
                         if (totVertical == "sum") {
-                            v = "" + accum.toFixed(nDec);
+                            v = accum.toFixed(nDec);
                         } else if (totVertical == "avg_cells") {
-                            v = "" + (accum.sum / accum.n).toFixed(nDec);
+                            v = (accum.sum / accum.n).toFixed(nDec);
                         } else if (totVertical == "avg_cells") {
-                            v = "" + (accum.sum / accum.n).toFixed(nDec);
+                            v = (accum.sum / accum.n).toFixed(nDec);
                         }
+                        v = parseFloat(v).toLocaleString();
                     }                    
                     html += `
                             <td class="dim-dim-table-cell-total">${v}</td>
@@ -200,9 +202,10 @@ class TimeDimTable extends ZDashboardElement {
                 }
                 if (totGlobal != "none" || totHorizontal != "none") {
                     let v = "";
-                    if (totGlobal == "sum" && acumGlobal) v = "" + acumGlobal.toFixed(nDec);
-                    else if (totGlobal == "avg_cells" && acumGlobal) v = "" + (acumGlobal.sum / acumGlobal.n).toFixed(nDec);
-                    else if (totGlobal == "avg_data" && acumGlobal) v = "" + (acumGlobal.sum / acumGlobal.n).toFixed(nDec);
+                    if (totGlobal == "sum" && acumGlobal) v = acumGlobal.toFixed(nDec);
+                    else if (totGlobal == "avg_cells" && acumGlobal) v = (acumGlobal.sum / acumGlobal.n).toFixed(nDec);
+                    else if (totGlobal == "avg_data" && acumGlobal) v = (acumGlobal.sum / acumGlobal.n).toFixed(nDec);
+                    v = parseFloat(v).toLocaleString();
                     html += `
                             <td class="dim-dim-table-cell-total">${v}</td>
                     `;

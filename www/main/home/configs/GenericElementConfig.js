@@ -22,6 +22,10 @@ class GenericElementConfig extends ZCustomController {
         }
         this.edVariable.setGroups(window.zrepo.variablesTree, "name", "variables", this.component.variable);
         if (this.component.useTemporality) {
+            if (!this.component.temporalidad) {
+                this.component.temporalidad = "5m";
+                this.triggerEvent("designChange");
+            }
             this.lblTemporalidad.show();
             this.edTemporalidad.show();
             let bloques = bloquesTemporalidad.map((b, idx) => ({code:nivelesTemporalidad[idx], name:b}));
