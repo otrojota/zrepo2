@@ -91,6 +91,10 @@ class Dimensions {
     }
     async deleteRow(dimensionCode, code) {
         try {
+            if (code == "_all_rows_") {
+                await (await mongoWrite.collection(dimensionCode)).deleteMany({});
+                return;
+            }
             let row = await this.getRow(dimensionCode, code);
             if (!row) throw "No se encontró la fila";
             await (await mongoWrite.collection(dimensionCode)).deleteOne({_id:code});

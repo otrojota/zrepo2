@@ -318,7 +318,12 @@ class Variables {
                 pipe = pipe.concat(this.getVarIndexerPipe(varCode));
                 if (pipe.length > 1) {
                     let [idxDoc] = await varCollection.aggregate(pipe).toArray();
-                    if (!idxDoc) idxDoc = {};
+                    if (!idxDoc) {
+                        idxDoc = {};
+                        console.error("error indexing " + varCode);
+                        console.error("pipe", pipe);
+                        console.error("Inserted doc", newDoc);
+                    }
                     idxDoc = this.removeExtraDataFromVarIdx(idxDoc, v);
                     let setObject = {};
                     v.classifiers.forEach(c => {
