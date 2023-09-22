@@ -1,13 +1,13 @@
 class ZDashboardElement extends ZCustomController {
-    get code() {throw "get code() no se sobreescribió"}
+    get code() { throw "get code() no se sobreescribió" }
 
-    get chartContainerId() {return "chartContainer-" + this.zId}
-    get chartContainer() {return this.find("#" + this.chartContainerId)}
-    get tableContainerId() {return "tableContainer-" + this.zId}
-    get tableContainer() {return this.find("#" + this.tableContainerId)}
-    get titleDivId() {return "chartTitle-" + this.zId}
-    get titleDiv() {return this.find("#" + this.titleDivId)}
-    get exportable() {return false}
+    get chartContainerId() { return "chartContainer-" + this.zId }
+    get chartContainer() { return this.find("#" + this.chartContainerId) }
+    get tableContainerId() { return "tableContainer-" + this.zId }
+    get tableContainer() { return this.find("#" + this.tableContainerId) }
+    get titleDivId() { return "chartTitle-" + this.zId }
+    get titleDiv() { return this.find("#" + this.titleDivId) }
+    get exportable() { return false }
     get root() {
         if (this._root) return this._root;
         this._root = am5.Root.new(this.chartContainerId);
@@ -15,7 +15,7 @@ class ZDashboardElement extends ZCustomController {
         this.doResize();
         return this._root;
     }
-    get dependsOnTime() {return true}
+    get dependsOnTime() { return true }
 
     onThis_init(options) {
         this.options = {};
@@ -26,7 +26,7 @@ class ZDashboardElement extends ZCustomController {
         }
     }
 
-    setDashboard(dsb) {this.dashboard = dsb}
+    setDashboard(dsb) { this.dashboard = dsb }
 
     onThis_deactivated() {
         if (this.chart) {
@@ -70,21 +70,22 @@ class ZDashboardElement extends ZCustomController {
             this.q2 = null;
         }
     }
+    
     setOptions(opts) {
         this.options = opts;
     }
 
-    async initElement() {}
+    async initElement() { }
     async refresh(start, end, operation = "refresh") {
         throw "No se sobreescribió refresh()"
     }
-    declareParams() {return []}    
+    declareParams() { return [] }
     dependsOn() {
         let f1 = (this.options.filters || []).filter(f => f.valor.startsWith("${")).map(f => f.valor.substr(2, f.valor.length - 3));
         let f2 = (this.options.filters2 || []).filter(f => f.valor.startsWith("${")).map(f => f.valor.substr(2, f.valor.length - 3));
         return f1.concat(f2);
     }
-    setParam(name, value) {this.dashboard.setParam(name, value)}
+    setParam(name, value) { this.dashboard.setParam(name, value) }
 
     prepareFilters(filters) {
         filters = filters || this.options.filters;
@@ -99,23 +100,23 @@ class ZDashboardElement extends ZCustomController {
                     // DimensionFilter
                     for (let f2 of v.filters.concat(v.fixedFilters)) {
                         if (f2.ruta == "") {
-                            ret.push({ruta:f.ruta, valor:f2.valor});
+                            ret.push({ ruta: f.ruta, valor: f2.valor });
                         } else {
-                            ret.push({ruta:f.ruta + "." + f2.ruta, valor:f2.valor});
+                            ret.push({ ruta: f.ruta + "." + f2.ruta, valor: f2.valor });
                         }
                     }
                 } else {
                     // Tipo básico
-                    ret.push({ruta:f.ruta, valor:v});
+                    ret.push({ ruta: f.ruta, valor: v });
                 }
             } else {
-                ret.push({ruta:f.ruta, valor:f.valor});
+                ret.push({ ruta: f.ruta, valor: f.valor });
             }
         }
         return ret;
     }
 
-    get preferedHeight() {return (this.options && this.options.height)?this.options.height:20;}
+    get preferedHeight() { return (this.options && this.options.height) ? this.options.height : 20; }
     dispose() {
         if (this._root) {
             this._root.dispose();
@@ -137,20 +138,62 @@ class ZDashboardElement extends ZCustomController {
             this.overlay = null;
         }
     }
-    
+
     static registerComponent(type, name, elementPath, propsPath, factories, icon) {
         if (!ZDashboardElement._components) ZDashboardElement._components = [];
+        if (ZDashboardElement.currentPlugin) {
+            name = "[" + ZDashboardElement.currentPlugin + "] " + name;
+            elementPath = "proxy/" + ZDashboardElement.currentPlugin + "/" + elementPath;
+            propsPath = "proxy/" + ZDashboardElement.currentPlugin + "/" + propsPath;
+        }
         let idx = ZDashboardElement._components.findIndex(c => c.code == type);
-        if (idx >= 0) throw "Componente " + type +" repetido!";
-        ZDashboardElement._components.push({type, name, elementPath, propsPath, factories, icon});        
+        if (idx >= 0) throw "Componente " + type + " repetido!";
+        ZDashboardElement._components.push({ type, name, elementPath, propsPath, factories, icon });
     }
     static getComponent(type) {
         if (!ZDashboardElement._components) ZDashboardElement._components = [];
         return ZDashboardElement._components.find(c => c.type == type);
     }
     static getCoomponentsList() {
-        let list = ZDashboardElement._components.map(c => (c)).sort((c1, c2) => (c1.name > c2.name?1:-1));
+        let list = ZDashboardElement._components.map(c => (c)).sort((c1, c2) => (c1.name > c2.name ? 1 : -1));
         return list;
+    }
+    static async loadExternalComponents() {
+        if (ZDashboardElement.externalComponentsLoaded) return;
+        let plugins = await zPost("getPlugins.zrepo");
+        let codigos = Object.keys(plugins);
+        for (let codigo of codigos) {
+            console.log("codigo ", codigo);
+            if (plugins[codigo].registerDashboardElements) {
+                console.log("Plugin " + codigo + " will register dashboard components");
+                ZDashboardElement.currentPlugin = codigo;
+                try {
+                    let path = `proxy/${codigo}/init-components.js`
+                    let response = await fetch(path);
+                    let text = await response.text();
+                    if (response.status != 200) {
+                        throw "[" + response.status + ": " + response.statusText + "] " + text;
+                    }
+                    eval(text);
+                } catch (error) {
+                    console.error(error);
+                }
+                ZDashboardElement.currentPlugin = null;
+            } else {
+                console.log("Plugin " + codigo + " does not declare dashboard components");
+            }
+        }
+        ZDashboardElement.externalComponentsLoaded = true;
+        console.log("Externals dashboard components loaded");
+    }
+
+    static loadCSSFile(path) {
+        let link = document.createElement("link");
+        link.rel = 'stylesheet';
+        link.type = 'text/css';
+        link.href = "proxy/" + ZDashboardElement.currentPlugin + "/" + path;
+        link.media = 'all';
+        document.head.appendChild(link);
     }
 }
 
@@ -240,14 +283,14 @@ ZDashboardElement.registerComponent("multi-dim-table", "Tabla Múltiple Dimensio
         c.useTemporality = false;
     }
 }, "fas fa-table-cells");
-ZDashboardElement.registerComponent("gauge", "Gauge","zdashboards/Gauge", "zdashboards/chartProps/WGauge", {
+ZDashboardElement.registerComponent("gauge", "Gauge", "zdashboards/Gauge", "zdashboards/chartProps/WGauge", {
     init: c => {
         c.height = 200;
         c.acumulador = "value";
-        c.min = 0; c.max = 100000; c.firstColor = "#0f9747"; c.firstLabel = "Bajo"; 
+        c.min = 0; c.max = 100000; c.firstColor = "#0f9747"; c.firstLabel = "Bajo";
         c.ranges = [{
-            value:50000, color:"#ee1f25",
-            label:"Alto"
+            value: 50000, color: "#ee1f25",
+            label: "Alto"
         }];
         c.useQuery = true;
         c.useTemporality = false;
@@ -283,12 +326,29 @@ ZDashboardElement.registerComponent("resume-table", "Tabla Resumen Período", "z
         c.showMax = "";
     }
 }, "fas fa-table-cells");
-ZDashboardElement.registerComponent("labels", "Labels","zdashboards/Labels", "zdashboards/chartProps/WLabels", {
+ZDashboardElement.registerComponent("labels", "Labels", "zdashboards/Labels", "zdashboards/chartProps/WLabels", {
     init: c => {
         c.height = 200;
         c.acumulador = "value";
-        c.layout = {c:{text:"Valor: ${value}"}};
+        c.layout = { c: { text: "Valor: ${value}" } };
         c.useQuery = true;
         c.useTemporality = false;
     }
 }, "fas fa-tag");
+ZDashboardElement.registerComponent("multi-col-table", "Tabla Múltiple Columnas", "zdashboards/MultiColTable", "zdashboards/chartProps/WMultiColTable", {
+    init: c => {
+        c.height = 300;
+        c.useQuery = false;
+        c.useTemporality = false;
+        c.useDataSet = true;
+    }
+}, "fas fa-table-cells");
+ZDashboardElement.registerComponent("filterText", "Filtro Selector", "zdashboards/FilterRowSelector", null, {
+    init: c => {
+        c.height = 50;
+        c.useQuery = false;
+        c.paramName = "nombre del filtro";
+        c.emptyText = "Filtrar por XX";
+        c.nonEmptyPrefix = "XX igual a";
+    }
+}, "fa-solid fa-regular fa-rectangle-list");

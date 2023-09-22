@@ -5,16 +5,16 @@ class Dashboard extends ZCustomController {
             this.designHeader.hide();
             this.mensaje.show();
             this.mensaje.html = '<i class="fas fa-spin fa-spinner fa-2x"></i>';
-            this.dashboard = await zPost("getDashboard.fs", {id:dashboard.id});
+            this.dashboard = await zPost("getDashboard.fs", { id: dashboard.id });
             if (dashboard.editable) this.dashboard.editable = true;
             //setTimeout(_ => this.setModoDiseno(), 200);            
-            this.mensaje.html = "";            
+            this.mensaje.html = "";
             this.mensaje.hide();
             this.triggerEvent("reloadMenu");
             await this.recreateDashboard();
             this.refreshFav();
             this.canPublish = await zPost("canPublish.fs");
-        } catch(error) {
+        } catch (error) {
             this.mensaje.text = error.toString();
         }
     }
@@ -42,7 +42,7 @@ class Dashboard extends ZCustomController {
             } else {
                 menu = `
                     <h5 class="dropdown-header">Creador / Editor</h5>
-                    <h6 class="dropdown-header">${this.dashboard.owner + ((this.dashboard.editor && this.dashboard.editor != this.dashboard.owner)?" / " + this.dashboard.editor:"")}</h6>
+                    <h6 class="dropdown-header">${this.dashboard.owner + ((this.dashboard.editor && this.dashboard.editor != this.dashboard.owner) ? " / " + this.dashboard.editor : "")}</h6>
                     <li><hr class="dropdown-divider"></li>
 
                     <a id="diseno" href="#" class="dropdown-item"><i class="fas fa-gear me-2"></i>Entrar a Modo Diseño</a>
@@ -69,7 +69,7 @@ class Dashboard extends ZCustomController {
             return menu;
         } else {
             return null;
-        }        
+        }
     }
     doContextMenu(id) {
         if (id == "diseno") this.setModoDiseno();
@@ -84,8 +84,8 @@ class Dashboard extends ZCustomController {
     }
 
     async setModoDiseno() {
-        this.edDashboard = {id:this.dashboard.id, name:this.dashboard.name, icon:this.dashboard.icon, config:JSON.parse(JSON.stringify(this.dashboard.config))};
-        if (!this.edDashboard.config.layout) this.edDashboard.config.layout = {type:"row", size:2};
+        this.edDashboard = { id: this.dashboard.id, name: this.dashboard.name, icon: this.dashboard.icon, config: JSON.parse(JSON.stringify(this.dashboard.config)) };
+        if (!this.edDashboard.config.layout) this.edDashboard.config.layout = { type: "row", size: 2 };
         this.designHeader.show();
         await this.layout.refresh();
         let rootNode = this.layout.findNodeById("_layout_");
@@ -106,16 +106,16 @@ class Dashboard extends ZCustomController {
     }
 
     eliminarDashboard() {
-        this.showDialog("common/WConfirm", {message:"Esta Operación No se puede Deshacer. ¿Confirmna que desea eliminar este Dashboard?", title:"Eliminar Dashboard"}, async _ => {
-            await zPost("deleteDashboard.fs", {id:this.dashboard.id});
+        this.showDialog("common/WConfirm", { message: "Esta Operación No se puede Deshacer. ¿Confirmna que desea eliminar este Dashboard?", title: "Eliminar Dashboard" }, async _ => {
+            await zPost("deleteDashboard.fs", { id: this.dashboard.id });
             this.triggerEvent("nodoEliminado")
         })
     }
 
     asFileName(st) {
         let ret = "";
-        for (let i=0; i<st.length; i++) {
-            let c = st.substr(i,1).toLowerCase();
+        for (let i = 0; i < st.length; i++) {
+            let c = st.substr(i, 1).toLowerCase();
             if ((c >= "a" && c <= "z") || (c >= "0" && c <= "9")) ret += c;
             else ret += "_";
         }
@@ -138,24 +138,24 @@ class Dashboard extends ZCustomController {
             this.dashboard.name = this.edDashboard.name;
             this.dashboard.icon = this.edDashboard.icon;
             this.dashboard.config = JSON.parse(JSON.stringify(this.edDashboard.config));
-            this.dashboard = await zPost("saveDashboard.fs", {dashboard:this.dashboard});
+            this.dashboard = await zPost("saveDashboard.fs", { dashboard: this.dashboard });
             this.mensaje.hide();
             this.designHeader.hide();
             this.modoDiseno = false;
             this.triggerEvent("reloadMenu");
             this.triggerEvent("nodoRenombrado", this.dashboard);
             await this.recreateDashboard();
-        } catch(error) {
+        } catch (error) {
             this.mensaje.text = error.toString();
-        }        
+        }
     }
 
     async copiarId() {
         try {
             await navigator.clipboard.writeText(this.dashboard.id);
-            this.showDialog("common/WInfo", {message:"Se ha copiado el identificador de este dashboard al portapapeles"});
-        } catch(error) {
-            this.showDialog("common/WError", {message:error.toString()});
+            this.showDialog("common/WInfo", { message: "Se ha copiado el identificador de este dashboard al portapapeles" });
+        } catch (error) {
+            this.showDialog("common/WError", { message: error.toString() });
         }
     }
 
@@ -163,12 +163,12 @@ class Dashboard extends ZCustomController {
         let cmpDef = ZDashboardElement.getComponent(component.type);
         if (!cmpDef) throw "No se encontr{o la definici{on del componente " + component.type;
         let node = {
-            id:component.id, 
-            label:cmpDef.name, 
+            id: component.id,
+            label: cmpDef.name,
             icon: cmpDef.icon,
-            items:false,
-            _type:component.type,
-            source:component
+            items: false,
+            _type: component.type,
+            source: component
         }
         if (component.type == "dimFilter" || component.type == "dimRowSelector") {
             node.label = "${" + component.paramName + "}";
@@ -180,7 +180,7 @@ class Dashboard extends ZCustomController {
             console.error("No layout!");
             return [];
         }
-        let node = {id:layout.id, selectable:true, _type:"layout", source:layout};
+        let node = { id: layout.id, selectable: true, _type: "layout", source: layout };
         if (layout.type == "row") {
             node.label = "Fila";
             node.icon = "fas fa-ellipsis";
@@ -194,8 +194,8 @@ class Dashboard extends ZCustomController {
             return used;
         }, {});
         let items = [];
-        for (let i=0; i<layout.size; i++) {
-            let item = {id:layout.id + "_" + i, label:"Celda " + (i+1), icon:"far " + (usedCells[i]?"fa-circle-dot":"fa-circle"), used:usedCells[i], source:layout, cellIndex:i, _type:"cell", selectable:true};
+        for (let i = 0; i < layout.size; i++) {
+            let item = { id: layout.id + "_" + i, label: "Celda " + (i + 1), icon: "far " + (usedCells[i] ? "fa-circle-dot" : "fa-circle"), used: usedCells[i], source: layout, cellIndex: i, _type: "cell", selectable: true };
             if (layout.type == "row") item.label += " [" + layout.widths[i] + "]";
             let component = layout.components.find(c => c.cellIndex == i);
             if (component) {
@@ -214,7 +214,7 @@ class Dashboard extends ZCustomController {
     }
     onLayout_getNodes(parentNode) {
         let nodes = [{
-            id:"_layout_", label:"Configurar Dashboard", icon:"fas fa-tools", selectable:true, _isOpen:true, items:this.buildLayoutTree(this.edDashboard.config.layout), source:this.edDashboard
+            id: "_layout_", label: "Configurar Dashboard", icon: "fas fa-tools", selectable: true, _isOpen: true, items: this.buildLayoutTree(this.edDashboard.config.layout), source: this.edDashboard
         }];
         return nodes;
     }
@@ -234,12 +234,20 @@ class Dashboard extends ZCustomController {
             await this.dsbLoader.load("./configs/DimensionFilterConfig", node.source);
         } else if (node._type == "dimRowSelector") {
             await this.dsbLoader.load("./configs/DimRowSelectorConfig", node.source);
+        } else if (node._type == "filterText") {
+            await this.dsbLoader.load("./configs/FilterRowSelectorConfig", node.source);
         } else {
+            //multi-col-table
             let cmpDef = ZDashboardElement.getComponent(node._type);
             if (!cmpDef) {
                 console.error("Nodo ", node, " no manejado para propiedades");
             } else {
-                await this.dsbLoader.load("./configs/GenericElementConfig", node.source);
+                if (node._type == "multi-col-table") {
+                    await this.dsbLoader.load("./configs/DinamicTable", node.source);
+                }
+                else {
+                    await this.dsbLoader.load("./configs/GenericElementConfig", node.source);
+                }
             }
         }
     }
@@ -282,10 +290,10 @@ class Dashboard extends ZCustomController {
     }
     async onDsbLoader_eliminar() {
         let cmp = this.layout.selectedNode.source;
-        let msg = cmp.type == "row" || cmp.type == "column"?
+        let msg = cmp.type == "row" || cmp.type == "column" ?
             "¿Confirma que desea eliminar el nodo seleccionado y todos sus componentes Hijos?"
-            :"¿Confirma que desea eliminar el componente seleccionao?";
-        this.showDialog("common/WConfirm", {message:msg}, async _ => {
+            : "¿Confirma que desea eliminar el componente seleccionao?";
+        this.showDialog("common/WConfirm", { message: msg }, async _ => {
             // Obtener source del nodo padre y eliminar desde sus components
             let parent = this.layout.findParentNode(this.layout.selectedNode._calculatedId);
             let idx = parent.source.components.findIndex(c => c.id == cmp.id);
@@ -299,20 +307,20 @@ class Dashboard extends ZCustomController {
     onDsbLoader_mover() {
         this.showDialog("./WSeleccionaCelda", {
             nodes: [{
-                id:"_layout_", label:"Dashboard", icon:"fas fa-tools", selectable:true, _isOpen:true, items:this.buildLayoutTree(this.edDashboard.config.layout), source:this.edDashboard
+                id: "_layout_", label: "Dashboard", icon: "fas fa-tools", selectable: true, _isOpen: true, items: this.buildLayoutTree(this.edDashboard.config.layout), source: this.edDashboard
             }]
         }, celdaDestino => {
             this.doMover(celdaDestino);
         })
-    }    
+    }
     async doMover(celdaDestino) {
         let node = this.layout.selectedNode;
         // Asegurar que la celdaDestino no sea descendiente del nodo que se mueve
         let n = celdaDestino;
-        while(n && n.id != "_layout_") {
+        while (n && n.id != "_layout_") {
             n = this.layout.findParentNode(n._calculatedId);
             if (n.id == node.id) {
-                this.showDialog("common/WError", {message:"Celda destino es inválida (produce ciclos)"});
+                this.showDialog("common/WError", { message: "Celda destino es inválida (produce ciclos)" });
                 return;
             }
         }
@@ -342,24 +350,24 @@ class Dashboard extends ZCustomController {
     }
 
     compartirDashboard() {
-        this.showDialog("./WCompartir", {dashboard:this.dashboard}, async _ => {
-            this.dashboard = await zPost("getDashboard.fs", {id:this.dashboard.id});
+        this.showDialog("./WCompartir", { dashboard: this.dashboard }, async _ => {
+            this.dashboard = await zPost("getDashboard.fs", { id: this.dashboard.id });
             this.triggerEvent("reloadMenu");
             this.triggerEvent("reloadGrupos");
         });
     }
 
     noCompartirDashboard() {
-        this.showDialog("common/WConfirm", {message:"¿Confirma que desea Dejar de Compartir este Dashboard?", title:"Dejar de Compartir"}, async _ => {
-            await zPost("shareDashboard.fs", {dashboardId:this.dashboard.id, groupId:null});
-            this.dashboard = await zPost("getDashboard.fs", {id:this.dashboard.id});
+        this.showDialog("common/WConfirm", { message: "¿Confirma que desea Dejar de Compartir este Dashboard?", title: "Dejar de Compartir" }, async _ => {
+            await zPost("shareDashboard.fs", { dashboardId: this.dashboard.id, groupId: null });
+            this.dashboard = await zPost("getDashboard.fs", { id: this.dashboard.id });
             this.triggerEvent("reloadMenu");
             this.triggerEvent("reloadGrupos");
         });
     }
 
     async refreshFav() {
-        let {favs, mostFav} = await zPost("getUserFavs.zrepo");
+        let { favs, mostFav } = await zPost("getUserFavs.zrepo");
         if (favs.indexOf(this.dashboard.id) >= 0) {
             if (mostFav == this.dashboard.id) {
                 this.triggerEvent("fav", "most");
@@ -373,10 +381,10 @@ class Dashboard extends ZCustomController {
 
     async toggleFav() {
         try {
-            await zPost("toggleUserFav.zrepo", {dashboardId:this.dashboard.id});
+            await zPost("toggleUserFav.zrepo", { dashboardId: this.dashboard.id });
             await this.refreshFav();
         } catch (error) {
-            this.showDialog("common/WError", {message:error.toString()})
+            this.showDialog("common/WError", { message: error.toString() })
         }
     }
 
@@ -387,7 +395,7 @@ class Dashboard extends ZCustomController {
         let toOpen = [];
         while (n.id != "_layout_") {
             if (n._isOpen == false) {
-                toOpen.splice(0,0,n);
+                toOpen.splice(0, 0, n);
             }
             n = this.layout.findParentNode(n);
         }

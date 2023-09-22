@@ -90,10 +90,8 @@ class ProcFolder extends ZCustomController {
 
     async invocaManual(trigger) {
         let proceso = this.edProceso.selectedRow;
-        console.log("invocaManual", proceso);
         try {
             let metadata = await zPost("getProcessMetadata.zrepo", {pluginCode:proceso.plugin, processCode:proceso.code});
-            console.log("metadata", metadata);   
             proceso.params = metadata.params;             
         } catch (error) {
             console.error(error);
