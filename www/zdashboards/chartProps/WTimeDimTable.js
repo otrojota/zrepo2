@@ -1,4 +1,4 @@
-class WDimDimTable extends ZDialog {
+class WTimeDimTable extends ZDialog {
     onThis_init(options) {
         this.options = options;
         this.rutaH = this.options.rutaH;
@@ -15,7 +15,7 @@ class WDimDimTable extends ZDialog {
         let formatos = {
             minutos:["YYYY/MM/DD HH:mm", "MM/DD HH:mm", "HH:mm", "MMM DD, HH:mm"],
             dias:["YYYY/MM/DD", "MM/DD", "MMM DD"],
-            meses:["YYYY/MM", "MMM de YYYY"],
+            meses:["YYYY/MM", "MMM [de] YYYY"],
             anos:["YYYY"]
         }
         let formatosPorTemporalidad = {"5m":"minutos", "15m":"minutos", "30m":"minutos", "1h":"minutos", "6h":"minutos", "12h":"minutos", "1d":"dias", "1M":"meses", "3M":"meses", "4M":"meses", "6M":"meses", "1y":"anos"}
@@ -131,4 +131,4 @@ class WDimDimTable extends ZDialog {
         });
     }
 }
-ZVC.export(WDimDimTable);
+ZVC.export(WTimeDimTable);

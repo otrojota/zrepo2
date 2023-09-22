@@ -15,8 +15,7 @@
             "restart": true,
             "sourceMaps": true,
             "localRoot": "${workspaceRoot}",
-            "remoteRoot": "/usr/src/app",
-            "protocol": "auto"
+            "remoteRoot": "/usr/src/app"
         }
     ]
 }

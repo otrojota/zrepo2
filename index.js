@@ -13,7 +13,9 @@ async function startHTTPServer() {
             console.error(error);
         }
         console.log("Starting ZRepo Server");
-        await (require("./minz/MongoDB")).init();
+        let {mongoRead, mongoWrite} = require("./minz/MongoDB");
+        await mongoRead.init();
+        await mongoWrite.init();
         await config.init();
         logs.info("Starting ZRepo Server");
         const zServer = require("./lib/z-server");

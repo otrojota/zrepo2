@@ -1,5 +1,4 @@
 const config = require("../lib/Config");
-const mongo = require("./MongoDB");
 
 class Security {
     static instance() {

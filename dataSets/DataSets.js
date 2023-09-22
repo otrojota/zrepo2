@@ -1,4 +1,4 @@
-const mongo = require("../minz/MongoDB");
+const {mongoRead, mongoWrite} = require("../minz/MongoDB");
 const variables = require("../minz/Variables");
 const dimensions = require("../minz/Dimensions");
 const logs = require("../lib/Logs");
@@ -37,7 +37,7 @@ class DataSets {
     }
 
     async init() {
-        if (!mongo.isInitialized()) return;
+        if (!mongoRead.isInitialized()) return;
         try {
             if (this.cronJobs) {
                 for (let job of this.cronJobs) job.stop();            
@@ -52,7 +52,7 @@ class DataSets {
             this.kafkaClientsConsumers = [];
             let dss = this.getDataSets();
             for (let ds of dss) {
-                let col = await mongo.collection(ds.code);
+                let col = await mongoWrite.collection(ds.code);
                 await col.createIndex({time:1});
                 if (ds.imports) {
                     for (let i=0; i<ds.imports.length; i++) {
@@ -116,7 +116,7 @@ class DataSets {
                 }
                 f = {$and:[f, {$or:or}]}
             }
-            let col = await mongo.collection(dsCode);
+            let col = await mongoRead.collection(dsCode);
             return col.find(f).count();
         } catch (error) {
             throw error;
@@ -135,7 +135,7 @@ class DataSets {
                 }
                 f = {$and:[f, {$or:or}]}
             }
-            let col = await mongo.collection(dsCode);
+            let col = await mongoRead.collection(dsCode);
             let rows = await col.find(f).sort({time:1}).skip(startRow).limit(nRows).map(r => {
                 r._id = r._id.toString()
                 return r;
@@ -147,7 +147,7 @@ class DataSets {
     }
     async query(dsCode, startTime, endTime, filter, columns) {
         try {
-            let col = await mongo.collection(dsCode);
+            let col = await mongoRead.collection(dsCode);
             filter.time = {"$gte":startTime, "$lte":endTime};
             let rows = (await col.find(filter).sort({time:1}).toArray());
             rows = rows.map(r => {
@@ -166,7 +166,7 @@ class DataSets {
 
     async getLastTime(dsCode) {
         try {
-            let col = await mongo.collection(dsCode);
+            let col = await mongoRead.collection(dsCode);
             let rows = await col.find({}).sort({time:-1}).limit(1).toArray();
             if (!rows.length) return null;
             return rows[0].time;
@@ -194,7 +194,7 @@ class DataSets {
         let varRow = {variable:trigger.variable, time, data:{}};
         if (trigger.differential) {
             let difValue;
-            let col = await mongo.collection(dsCode);
+            let col = await mongoWrite.collection(dsCode);
             let filter = {time:{$lt:dsRow.time}};
             if (trigger.discriminator) {
                 filter[trigger.discriminator] = dsRow[trigger.discriminator];
@@ -283,7 +283,7 @@ class DataSets {
                     });
                 }
             }
-            let col = await mongo.collection(dsCode);
+            let col = await mongoWrite.collection(dsCode);
             //let key = this.getDSKey(ds);
             let hasKey = ds.columns.find(c => c.key)?true:false;
             if (hasKey) {
@@ -465,7 +465,7 @@ class DataSets {
         try {
             filter = filter || {};
             filter.time = {"$gte":startTime, "$lte":endTime};
-            let col = await mongo.collection(dsCode);
+            let col = await mongoWrite.collection(dsCode);
             let res = await col.deleteMany(filter);
             return res.deletedCount;
         } catch (error) {
